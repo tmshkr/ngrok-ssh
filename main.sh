@@ -2,37 +2,38 @@
 
 export ssh_dir="$GITHUB_WORKSPACE/.ssh"
 export ngrok_dir="$GITHUB_WORKSPACE/.ngrok"
+
 mkdir -p $ssh_dir
 mkdir -p $ngrok_dir
 
 echo "Configuring sshd..."
-envsubst < "$ssh_dir/sshd_config.template" > "$ssh_dir/sshd_config"
+echo "$(envsubst < "$ssh_dir/config")" > "$ssh_dir/config"
 
 echo "Configuring ngrok..."
-envsubst < "$ngrok_dir/ngrok.yml.template" > "$ngrok_dir/ngrok.yml"
+echo "$(envsubst < "$ngrok_dir/ngrok.yml")" > "$ngrok_dir/ngrok.yml"
 
-if [ -z "$NGROK_AUTHTOKEN" ]; then
+if [ -z "$INPUT_NGROK_AUTHTOKEN" ]; then
   echo "You must provide your ngrok authtoken. Visit https://dashboard.ngrok.com/get-started/your-authtoken to get it."
   exit 1
 fi
 
 # Setup user creds
-if [ -n "$SSH_PASSWORD" ]; then
-  echo "Setting password for user: $USER"
-  if [ "$SSH_PASSWORD" == "random" ]; then
-    SSH_PASSWORD=$(openssl rand -base64 32)
-    is_random_password=true
-  fi
-  echo "$USER:$SSH_PASSWORD" | sudo chpasswd
+curl -s "https://api.github.com/users/$GITHUB_ACTOR/keys" | jq -r '.[].key' >> "$ssh_dir/authorized_keys"
+if [ $? -ne 0 ]; then
+  echo "Couldn't get public SSH key for user: $GITHUB_ACTOR"
+  echo "Visit https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account to learn how to add one to your GitHub account."
 else
-  curl -s "https://api.github.com/users/$GITHUB_ACTOR/keys" | jq -r '.[].key' >> "$ssh_dir/authorized_keys"
-  if [ $? -ne 0 ]; then
-    echo "Couldn't get public SSH key for user: $GITHUB_ACTOR"
-    echo "SSH key must be configured."
-    echo "Visit https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account to learn how to add one to your GitHub account."
-    exit 1
-  fi
   echo "Configured SSH key(s) for user: $GITHUB_ACTOR"
+fi
+
+if [ -n "$INPUT_SSH_PUBLIC_KEY"]; then
+  echo "$INPUT_SSH_PUBLIC_KEY" >> "$ssh_dir/authorized_keys"
+fi
+
+if [ ! -f "$ssh_dir/authorized_keys" ] || [ "$INPUT_RANDOM_PASSWORD" == true ]; then
+  echo "Setting random password for user: $USER"
+  random_password=$(openssl rand -base64 32)
+  echo "$USER:$random_password" | sudo chpasswd
 fi
 
 # Download and install ngrok
@@ -49,7 +50,7 @@ echo 'Creating SSH server key...'
 ssh-keygen -q -f "$ssh_dir/ssh_host_rsa_key" -N ''
 
 echo "Starting SSH server..."
-/usr/sbin/sshd -f "$ssh_dir/sshd_config"
+/usr/sbin/sshd -f "$ssh_dir/config"
 
 echo "Starting tmux session..."
 tmux new-session -d -s $USER
@@ -70,9 +71,9 @@ echo $tunnels | jq -c '.tunnels[]' | while read tunnel; do
       echo "SSH command:"
       echo "ssh $USER@$hostname -p $port"
       printf "\n"
-      if [ "$is_random_password" = true ]; then
+      if [ -n "$random_password" ]; then
         echo "Random password:"
-        echo "$SSH_PASSWORD"
+        echo "$random_password"
         printf "\n"
       fi
       echo "After logging in, you can attach to the $USER tmux session:"
