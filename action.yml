@@ -1,7 +1,6 @@
 name: ngrok-ssh
 description: Uses ngrok to open an SSH tunnel into your GitHub Actions runner.
 runs:
-  using: composite
-  steps:
-    - run: ./ngrok-ssh
-      shell: bash
+  using: "node20"
+  main: "main.js"
+  post: "post.js"

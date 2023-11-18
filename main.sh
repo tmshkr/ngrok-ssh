@@ -5,6 +5,11 @@ if [ -z "$NGROK_AUTHTOKEN" ]; then
   exit 1
 fi
 
+ssh_dir="$GITHUB_WORKSPACE/.ssh"
+ngrok_dir="$GITHUB_WORKSPACE/.ngrok"
+mkdir -p $ssh_dir
+mkdir -p $ngrok_dir
+
 
 # Download, install, and configure ngrok
 if ! command -v "ngrok" > /dev/null 2>&1; then
@@ -17,25 +22,10 @@ if ! command -v "ngrok" > /dev/null 2>&1; then
 fi
 
 echo "Configuring ngrok..."
-ngrok_config="
-version: 2
-region: us
-authtoken: $NGROK_AUTHTOKEN
-tunnels:
-  web:
-    addr: 3000
-    proto: http
-  ssh:
-    addr: 2222
-    proto: tcp
-"
-mkdir -p ~/.config/ngrok
-echo "$ngrok_config" > ~/.config/ngrok/ngrok.yml
+envsubst < "$ngrok_dir/ngrok.yml.template" > "$ngrok_dir/ngrok.yml"
 
-ssh_dir="$GITHUB_WORKSPACE/.ssh"
 
 # Setup SSH server
-mkdir -p $ssh_dir
 curl -s "https://api.github.com/users/$GITHUB_ACTOR/keys" | jq -r '.[].key' >> "$ssh_dir/authorized_keys"
 
 if [ $? -ne 0 ]; then
@@ -45,31 +35,22 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "Configured SSH key(s) for user: $GITHUB_ACTOR"
+
 echo 'Creating SSH server key...'
 ssh-keygen -q -f "$ssh_dir/ssh_host_rsa_key" -N ''
 
-sshd_config="
-Port 2222
-HostKey $ssh_dir/ssh_host_rsa_key
-PidFile $ssh_dir/sshd.pid
-AllowUsers $USER
-AuthorizedKeysFile $ssh_dir/authorized_keys
-# ForceCommand tmux attach
-UsePAM yes
-"
+echo "Configuring sshd..."
+envsubst < "$ssh_dir/sshd_config.template" > "$ssh_dir/sshd_config"
 
-echo 'Creating SSH server config...'
-echo "$sshd_config" > "$ssh_dir/config"
+echo "Starting SSH server..."
+/usr/sbin/sshd -f "$ssh_dir/sshd_config"
 
-echo 'Starting SSH server...'
-/usr/sbin/sshd -f "$ssh_dir/config"
-
-echo 'Starting tmux session...'
-tmux new-session -d -s runner
+echo "Starting tmux session..."
+tmux new-session -d -s $USER
 
 # Start ngrok
 echo "Starting ngrok..."
-ngrok start --all --log ngrok.log > /dev/null &
+ngrok start --all --config "$ngrok_dir/ngrok.yml" --log "$ngrok_dir/ngrok.log" > /dev/null &
 printf "\n\n\n"
 
 # Get ngrok tunnels and print them
@@ -82,9 +63,9 @@ echo $tunnels | jq -c '.tunnels[]' | while read tunnel; do
       hostname=$(echo $tunnel_url | cut -d'/' -f3 | cut -d':' -f1)
       port=$(echo $tunnel_url | cut -d':' -f3)
       echo "SSH command:"
-      echo "ssh runner@$hostname -p $port"
+      echo "ssh $USER@$hostname -p $port"
       printf "\n"
-      echo "After logging in, you can attach to the runner tmux session:"
+      echo "After logging in, you can attach to the $USER tmux session:"
       echo "tmux attach"
       printf "\n\n\n"
     else
