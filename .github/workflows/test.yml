@@ -1,0 +1,13 @@
+name: ngrok-ssh
+on:
+  workflow_dispatch:
+
+jobs:
+  npx-serve:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./ngrok-ssh
+        env:
+          NGROK_AUTHTOKEN: ${{ secrets.NGROK_AUTHTOKEN }}
+      - run: npx -y serve
