@@ -3,11 +3,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  npx-serve:
+  run:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: ./ngrok-ssh
+      - uses: ./
         env:
           NGROK_AUTHTOKEN: ${{ secrets.NGROK_AUTHTOKEN }}
       - run: npx -y serve
