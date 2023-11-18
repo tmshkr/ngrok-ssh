@@ -8,6 +8,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./
-        env:
+        with:
           NGROK_AUTHTOKEN: ${{ secrets.NGROK_AUTHTOKEN }}
       - run: echo "<h1>hello world</h1>" > index.html && npx -y serve
