@@ -1,10 +1,10 @@
 version: 2
 region: us
-authtoken: $NGROK_AUTHTOKEN
+authtoken: $INPUT_NGROK_AUTHTOKEN
 tunnels:
   web:
     addr: 3000
     proto: http
   ssh:
-    addr: 2222
+    addr: $INPUT_SSH_PORT
     proto: tcp
