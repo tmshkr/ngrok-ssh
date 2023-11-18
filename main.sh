@@ -23,7 +23,7 @@ if [ -n "$SSH_PASSWORD" ]; then
     SSH_PASSWORD=$(openssl rand -base64 32)
     is_random_password=true
   fi
-  echo "$USER:$SSH_PASSWORD" | chpasswd
+  echo "$USER:$SSH_PASSWORD" | sudo chpasswd
 else
   curl -s "https://api.github.com/users/$GITHUB_ACTOR/keys" | jq -r '.[].key' >> "$ssh_dir/authorized_keys"
   if [ $? -ne 0 ]; then
