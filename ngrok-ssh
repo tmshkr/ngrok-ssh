@@ -1,5 +1,11 @@
 #!/bin/bash -e
 
+if [ -z "$NGROK_AUTHTOKEN" ]; then
+  echo "You must provide your ngrok authtoken. Visit https://dashboard.ngrok.com/get-started/your-authtoken to get it."
+  exit 1
+fi
+
+
 # Download, install, and configure ngrok
 if ! command -v "ngrok" > /dev/null 2>&1; then
   echo "Installing ngrok..."
