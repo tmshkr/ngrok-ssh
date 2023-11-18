@@ -1,15 +1,20 @@
 #!/bin/bash -e
 
+export ssh_dir="$GITHUB_WORKSPACE/.ssh"
+export ngrok_dir="$GITHUB_WORKSPACE/.ngrok"
+mkdir -p $ssh_dir
+mkdir -p $ngrok_dir
+
+echo "Configuring sshd..."
+envsubst < "$ssh_dir/sshd_config.template" > "$ssh_dir/sshd_config"
+
+echo "Configuring ngrok..."
+envsubst < "$ngrok_dir/ngrok.yml.template" > "$ngrok_dir/ngrok.yml"
+
 if [ -z "$NGROK_AUTHTOKEN" ]; then
   echo "You must provide your ngrok authtoken. Visit https://dashboard.ngrok.com/get-started/your-authtoken to get it."
   exit 1
 fi
-
-ssh_dir="$GITHUB_WORKSPACE/.ssh"
-ngrok_dir="$GITHUB_WORKSPACE/.ngrok"
-mkdir -p $ssh_dir
-mkdir -p $ngrok_dir
-
 
 # Download, install, and configure ngrok
 if ! command -v "ngrok" > /dev/null 2>&1; then
@@ -20,9 +25,6 @@ if ! command -v "ngrok" > /dev/null 2>&1; then
   mv ngrok /usr/local/bin/ngrok
   rm ngrok-v3-stable-linux-amd64.tgz
 fi
-
-echo "Configuring ngrok..."
-envsubst < "$ngrok_dir/ngrok.yml.template" > "$ngrok_dir/ngrok.yml"
 
 
 # Setup SSH server
