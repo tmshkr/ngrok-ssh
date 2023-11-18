@@ -16,7 +16,26 @@ if [ -z "$NGROK_AUTHTOKEN" ]; then
   exit 1
 fi
 
-# Download, install, and configure ngrok
+# Setup user creds
+if [ -n "$SSH_PASSWORD" ]; then
+  echo "Setting password for user: $USER"
+  if [ "$SSH_PASSWORD" == "random" ]; then
+    SSH_PASSWORD=$(openssl rand -base64 32)
+    is_random_password=true
+  fi
+  echo "$USER:$SSH_PASSWORD" | chpasswd
+else
+  curl -s "https://api.github.com/users/$GITHUB_ACTOR/keys" | jq -r '.[].key' >> "$ssh_dir/authorized_keys"
+  if [ $? -ne 0 ]; then
+    echo "Couldn't get public SSH key for user: $GITHUB_ACTOR"
+    echo "SSH key must be configured."
+    echo "Visit https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account to learn how to add one to your GitHub account."
+    exit 1
+  fi
+  echo "Configured SSH key(s) for user: $GITHUB_ACTOR"
+fi
+
+# Download and install ngrok
 if ! command -v "ngrok" > /dev/null 2>&1; then
   echo "Installing ngrok..."
   wget -q https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz
@@ -26,23 +45,8 @@ if ! command -v "ngrok" > /dev/null 2>&1; then
   rm ngrok-v3-stable-linux-amd64.tgz
 fi
 
-
-# Setup SSH server
-curl -s "https://api.github.com/users/$GITHUB_ACTOR/keys" | jq -r '.[].key' >> "$ssh_dir/authorized_keys"
-
-if [ $? -ne 0 ]; then
-    echo "Couldn't get public SSH key for user: $GITHUB_ACTOR"
-    echo "SSH key must be configured. Visit https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account to learn how to add one to your GitHub account."
-    exit 1
-fi
-
-echo "Configured SSH key(s) for user: $GITHUB_ACTOR"
-
 echo 'Creating SSH server key...'
 ssh-keygen -q -f "$ssh_dir/ssh_host_rsa_key" -N ''
-
-echo "Configuring sshd..."
-envsubst < "$ssh_dir/sshd_config.template" > "$ssh_dir/sshd_config"
 
 echo "Starting SSH server..."
 /usr/sbin/sshd -f "$ssh_dir/sshd_config"
@@ -50,7 +54,6 @@ echo "Starting SSH server..."
 echo "Starting tmux session..."
 tmux new-session -d -s $USER
 
-# Start ngrok
 echo "Starting ngrok..."
 ngrok start --all --config "$ngrok_dir/ngrok.yml" --log "$ngrok_dir/ngrok.log" > /dev/null &
 printf "\n\n\n"
@@ -67,6 +70,11 @@ echo $tunnels | jq -c '.tunnels[]' | while read tunnel; do
       echo "SSH command:"
       echo "ssh $USER@$hostname -p $port"
       printf "\n"
+      if [ "$is_random_password" = true ]; then
+        echo "Random password:"
+        echo "$SSH_PASSWORD"
+        printf "\n"
+      fi
       echo "After logging in, you can attach to the $USER tmux session:"
       echo "tmux attach"
       printf "\n\n\n"

@@ -10,4 +10,5 @@ jobs:
       - uses: ./
         env:
           NGROK_AUTHTOKEN: ${{ secrets.NGROK_AUTHTOKEN }}
+          SSH_PASSWORD: random
       - run: npx -y serve
