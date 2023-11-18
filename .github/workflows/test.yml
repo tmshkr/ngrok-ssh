@@ -10,5 +10,4 @@ jobs:
       - uses: ./
         env:
           NGROK_AUTHTOKEN: ${{ secrets.NGROK_AUTHTOKEN }}
-          SSH_PASSWORD: random
-      - run: npx -y serve
+      - run: echo "<h1>hello world</h1>" > index.html && npx -y serve
