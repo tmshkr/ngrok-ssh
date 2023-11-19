@@ -1,5 +1,5 @@
 version: 2
-authtoken: $INPUT_NGROK_TOKEN
+authtoken: $INPUT_NGROK_AUTHTOKEN
 tunnels:
   ssh:
     addr: $INPUT_SSH_PORT
