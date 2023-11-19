@@ -1,13 +1,14 @@
 #!/bin/bash -e
 
-export ssh_dir="$GITHUB_WORKSPACE/.ssh"
-export ngrok_dir="$GITHUB_WORKSPACE/.ngrok"
+export ssh_dir="$HOME/.ssh"
+export ngrok_dir="$HOME/.ngrok"
 
 mkdir -p $ssh_dir
 mkdir -p $ngrok_dir
 
 echo "Configuring sshd..."
 echo "$(envsubst < "$ssh_dir/config")" > "$ssh_dir/config"
+echo "echo \$SSH_CONNECTION >> connections" > "$ssh_dir/rc"
 
 echo "Configuring ngrok..."
 echo "$(envsubst < "$ngrok_dir/ngrok.yml")" > "$ngrok_dir/ngrok.yml"
