@@ -7,11 +7,11 @@ mkdir -m 700 $ssh_dir
 mkdir -m 700 $ngrok_dir
 
 echo "Configuring sshd..."
-echo "$(envsubst < ".ssh/config")" > "$ssh_dir/config"
+envsubst < ".ssh/config" > "$ssh_dir/config"
 echo "echo \$SSH_CONNECTION >> $ssh_dir/connections" > "$ssh_dir/rc"
 
 echo "Configuring ngrok..."
-echo "$(envsubst < ".ngrok/ngrok.yml")" > "$ngrok_dir/ngrok.yml"
+envsubst < ".ngrok/ngrok.yml" > "$ngrok_dir/ngrok.yml"
 
 
 if [ -z "$INPUT_NGROK_AUTHTOKEN" ]; then
