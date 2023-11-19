@@ -76,7 +76,7 @@ echo "Starting tmux session..."
 tmux new-session -d -s $USER
 
 echo "Starting ngrok..."
-ngrok start --all --authtoken $INPUT_NGROK_AUTHTOKEN --config "$ngrok_config" --log "$ngrok_dir/ngrok.log" > /dev/null &
+ngrok start --all --config "$ngrok_config" --log "$ngrok_dir/ngrok.log" > /dev/null &
 echo "*********************************"
 
 # Get ngrok tunnels and print them
