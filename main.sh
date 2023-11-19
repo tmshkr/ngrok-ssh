@@ -72,9 +72,6 @@ ssh-keygen -q -f "$ssh_dir/ssh_host_rsa_key" -N ''
 echo "Starting SSH server..."
 /usr/sbin/sshd -f "$ssh_dir/config"
 
-echo "Starting tmux session..."
-tmux new-session -d -s $USER
-
 echo "Starting ngrok..."
 ngrok start --all --config "$ngrok_config" --log "$ngrok_dir/ngrok.log" > /dev/null &
 echo "*********************************"
@@ -99,11 +96,6 @@ echo $tunnels | jq -c '.tunnels[]' | while read tunnel; do
         echo "*** $random_password"
         echo "***"
       fi
-      echo "*** After logging in, you can attach to the $USER tmux session:"
-      echo "*** tmux attach"
-      echo "***"
-      echo "*********************************"
-      echo "*********************************"
     else
       echo "*********************************"
       echo "***"
