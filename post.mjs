@@ -1,11 +1,12 @@
 import { execSync } from "child_process";
-import { actionPath } from "./env.mjs";
+import { ACTION_PATH } from "./env.mjs";
 
 try {
-  execSync(`ACTION_PATH=${actionPath} ${actionPath}/post.sh`, {
+  execSync(`${ACTION_PATH}/post.sh`, {
+    env: { ...process.env, ACTION_PATH },
     stdio: "inherit",
   });
-} catch (error) {
+} catch (err) {
   console.error(err.message);
   process.exit(err.status);
 }

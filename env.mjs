@@ -5,7 +5,7 @@ export const {
   GITHUB_WORKSPACE,
 } = process.env;
 
-export const actionPath =
+export const ACTION_PATH =
   GITHUB_ACTION === "__self"
     ? GITHUB_WORKSPACE
     : `/home/runner/work/_actions/${GITHUB_ACTION_REPOSITORY}/${GITHUB_ACTION_REF}`;
