@@ -17,6 +17,12 @@ envsubst < "$ACTION_PATH/.ssh/rc" > "$ssh_dir/rc" '$github_workspace $ssh_dir'
 
 echo "Configuring ngrok..."
 envsubst < "$ACTION_PATH/.ngrok/ngrok.yml" > "$ngrok_dir/ngrok.yml"
+ngrok_config="$ngrok_dir/ngrok.yml"
+
+if [ -n "$INPUT_NGROK_CONFIG_FILE" ]; then
+  echo "Adding custom ngrok config file..."
+  ngrok_config="$ngrok_config,$GITHUB_WORKSPACE/$INPUT_NGROK_CONFIG_FILE"
+fi
 
 
 if [ -z "$INPUT_NGROK_AUTHTOKEN" ]; then
@@ -67,7 +73,7 @@ echo "Starting tmux session..."
 tmux new-session -d -s $USER
 
 echo "Starting ngrok..."
-ngrok start --all --authtoken $INPUT_NGROK_AUTHTOKEN --config "$ngrok_dir/ngrok.yml" --log "$ngrok_dir/ngrok.log" > /dev/null &
+ngrok start --all --authtoken $INPUT_NGROK_AUTHTOKEN --config "$ngrok_config" --log "$ngrok_dir/ngrok.log" > /dev/null &
 echo "*********************************"
 
 # Get ngrok tunnels and print them

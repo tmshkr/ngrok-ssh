@@ -4,6 +4,9 @@ inputs:
   NGROK_AUTHTOKEN:
     description: "Your ngrok auth token, required for TCP tunnels."
     required: true
+  NGROK_CONFIG_FILE:
+    description: "Path to your custom ngrok config file, which will be merged with the default ngrok-ssh config file. See https://ngrok.com/docs/agent/config/#config-file-merging for more information."
+    required: false
   SET_RANDOM_PASSWORD:
     description: "Whether to set a random password for the SSH user. If no public key is available, this will be set to true."
     required: false
