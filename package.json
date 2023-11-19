@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "main": "main.mjs",
   "scripts": {
-    "main:dev": "rm -rf dev && mkdir dev && node --env-file=.env main.mjs",
-    "post:dev": "node --env-file=.env post.mjs"
+    "prep:dev": "rm -rf dev && mkdir dev",
+    "main:dev": "npm run prep:dev && node --env-file=.env main.mjs && npm run cleanup:dev",
+    "post:dev": "node --env-file=.env post.mjs",
+    "cleanup:dev": "killall tmux ngrok sshd"
   },
   "author": {
     "name": "Tim Shaker",
