@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 # Wait until there are no users logged in
-while sudo who | grep -q pts ; do
+while ss -tnp | grep sshd | grep $INPUT_SSH_PORT ; do
   echo "Waiting for all users to log out..."
   sleep 5
 done
