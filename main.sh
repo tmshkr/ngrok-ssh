@@ -6,14 +6,13 @@ fi
 
 export ssh_dir="$HOME/.ssh"
 export ngrok_dir="$HOME/.ngrok"
-export github_workspace="$GITHUB_WORKSPACE"
 
 mkdir -m 700 $ssh_dir
 mkdir -m 700 $ngrok_dir
 
 echo "Configuring sshd..."
 envsubst < "$ACTION_PATH/.ssh/config" > "$ssh_dir/config"
-envsubst < "$ACTION_PATH/.ssh/rc" > "$ssh_dir/rc" '$github_workspace $ssh_dir'
+envsubst < "$ACTION_PATH/.ssh/rc" > "$ssh_dir/rc" '$ssh_dir'
 
 echo "Configuring ngrok..."
 envsubst < "$ACTION_PATH/.ngrok/ngrok.yml" > "$ngrok_dir/ngrok.yml"
