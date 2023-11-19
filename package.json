@@ -1,0 +1,15 @@
+{
+  "name": "ngrok-ssh",
+  "version": "1.0.0",
+  "main": "main.mjs",
+  "scripts": {
+    "main:dev": "rm -rf dev && mkdir dev && node --env-file=.env main.mjs",
+    "post:dev": "node --env-file=.env post.mjs"
+  },
+  "author": {
+    "name": "Tim Shaker",
+    "email": "tim@tmshkr.com",
+    "url": "https://github.com/tmshkr"
+  },
+  "license": "MIT"
+}

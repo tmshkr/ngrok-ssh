@@ -1,4 +1,8 @@
 #!/bin/bash -e
+if [ $GITHUB_ACTIONS == false ]; then
+  HOME="$PWD/dev"
+  USER="dev"
+fi
 
 export ssh_dir="$HOME/.ssh"
 export ngrok_dir="$HOME/.ngrok"
@@ -37,7 +41,9 @@ fi
 if ! grep -q . "$ssh_dir/authorized_keys" || [ "$INPUT_SET_RANDOM_PASSWORD" == true ]; then
   echo "Setting random password for user: $USER"
   random_password=$(openssl rand -base64 32)
-  echo "$USER:$random_password" | sudo chpasswd
+  if [ $GITHUB_ACTIONS == true ]; then
+    echo "$USER:$random_password" | sudo chpasswd
+  fi
 fi
 
 # Download and install ngrok
