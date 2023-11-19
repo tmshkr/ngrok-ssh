@@ -8,7 +8,8 @@ export ssh_dir="$HOME/.ssh"
 export ngrok_dir="$HOME/.ngrok"
 export github_vars=$(printenv | grep "^GITHUB" | awk -F= '{print $1"=\""$2"\""}' | tr '\n' ' ')
 export runner_vars=$(printenv | grep "^RUNNER" | awk -F= '{print $1"=\""$2"\""}' | tr '\n' ' ')
-export ssh_vars="CI=true $github_vars $runner_vars"
+export input_vars=$(printenv | grep "^INPUT" | awk -F= '{print $1"=\""$2"\""}' | tr '\n' ' ')
+export ssh_vars="CI=true $github_vars $runner_vars $input_vars"
 
 mkdir -m 700 $ssh_dir
 mkdir -m 700 $ngrok_dir
