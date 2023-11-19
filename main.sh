@@ -18,7 +18,7 @@ if [ -z "$INPUT_NGROK_AUTHTOKEN" ]; then
 fi
 
 # Setup ssh login credentials
-if [ "$INPUT_USE_GITHUB_ACTOR_KEY" == true]; then
+if [ "$INPUT_USE_GITHUB_ACTOR_KEY" == true ]; then
   curl -s "https://api.github.com/users/$GITHUB_ACTOR/keys" | jq -r '.[].key' >> "$ssh_dir/authorized_keys"
   if [ $? -ne 0 ]; then
     echo "Couldn't get public SSH key for user: $GITHUB_ACTOR"
@@ -28,11 +28,11 @@ if [ "$INPUT_USE_GITHUB_ACTOR_KEY" == true]; then
   fi
 fi
 
-if [ -n "$INPUT_SSH_PUBLIC_KEY"]; then
+if [ -n "$INPUT_SSH_PUBLIC_KEY" ]; then
   echo "$INPUT_SSH_PUBLIC_KEY" >> "$ssh_dir/authorized_keys"
 fi
 
-if [ ! -f "$ssh_dir/authorized_keys" ] || [ "$INPUT_SET_RANDOM_PASSWORD" == true ]; then
+if ! grep -q . "$ssh_dir/authorized_keys" || [ "$INPUT_SET_RANDOM_PASSWORD" == true ]; then
   echo "Setting random password for user: $USER"
   random_password=$(openssl rand -base64 32)
   echo "$USER:$random_password" | sudo chpasswd
