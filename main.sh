@@ -6,6 +6,8 @@ fi
 
 export ssh_dir="$HOME/.ssh"
 export ngrok_dir="$HOME/.ngrok"
+export github_vars=$(printenv | grep "^GITHUB")
+export runner_vars=$(printenv | grep "^RUNNER")
 
 mkdir -m 700 $ssh_dir
 mkdir -m 700 $ngrok_dir
