@@ -17,20 +17,22 @@ if [ -z "$INPUT_NGROK_AUTHTOKEN" ]; then
   exit 1
 fi
 
-# Setup user creds
-curl -s "https://api.github.com/users/$GITHUB_ACTOR/keys" | jq -r '.[].key' >> "$ssh_dir/authorized_keys"
-if [ $? -ne 0 ]; then
-  echo "Couldn't get public SSH key for user: $GITHUB_ACTOR"
-  echo "Visit https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account to learn how to add one to your GitHub account."
-else
-  echo "Configured SSH key(s) for user: $GITHUB_ACTOR"
+# Setup ssh login credentials
+if [ "$INPUT_USE_GITHUB_ACTOR_KEY" == true]; then
+  curl -s "https://api.github.com/users/$GITHUB_ACTOR/keys" | jq -r '.[].key' >> "$ssh_dir/authorized_keys"
+  if [ $? -ne 0 ]; then
+    echo "Couldn't get public SSH key for user: $GITHUB_ACTOR"
+    echo "Visit https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account to learn how to add one to your GitHub account."
+  else
+    echo "Configured SSH key(s) for user: $GITHUB_ACTOR"
+  fi
 fi
 
 if [ -n "$INPUT_SSH_PUBLIC_KEY"]; then
   echo "$INPUT_SSH_PUBLIC_KEY" >> "$ssh_dir/authorized_keys"
 fi
 
-if [ ! -f "$ssh_dir/authorized_keys" ] || [ "$INPUT_RANDOM_PASSWORD" == true ]; then
+if [ ! -f "$ssh_dir/authorized_keys" ] || [ "$INPUT_SET_RANDOM_PASSWORD" == true ]; then
   echo "Setting random password for user: $USER"
   random_password=$(openssl rand -base64 32)
   echo "$USER:$random_password" | sudo chpasswd

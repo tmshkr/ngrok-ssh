@@ -2,19 +2,23 @@ name: ngrok-ssh
 description: SSH into your GitHub Actions runner with ngrok.
 inputs:
   NGROK_AUTHTOKEN:
-    description: "ngrok auth token, required for TCP tunnels"
+    description: "Your ngrok auth token, required for TCP tunnels."
     required: true
-  RANDOM_PASSWORD:
-    description: "Set a random password for the SSH user"
+  SET_RANDOM_PASSWORD:
+    description: "Whether to set a random password for the SSH user. If no public key is available, this will be set to true."
     required: false
     default: false
   SSH_PORT:
-    description: "SSH port to use with ngrok"
+    description: "SSH port to use with ngrok."
     required: false
     default: 2222
   SSH_PUBLIC_KEY:
-    description: "SSH public key to add to the authorized_keys file, in addition to the GITHUB_ACTOR public key"
+    description: "SSH public key to add to the authorized_keys file."
     required: false
+  USE_GITHUB_ACTOR_KEY:
+    description: "Whether to add the GITHUB_ACTOR public key to the authorized_keys file."
+    required: false
+    default: true
 
 runs:
   using: "node20"
