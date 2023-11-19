@@ -6,13 +6,14 @@ fi
 
 export ssh_dir="$HOME/.ssh"
 export ngrok_dir="$HOME/.ngrok"
+export github_workspace="$GITHUB_WORKSPACE"
 
 mkdir -m 700 $ssh_dir
 mkdir -m 700 $ngrok_dir
 
 echo "Configuring sshd..."
 envsubst < "$ACTION_PATH/.ssh/config" > "$ssh_dir/config"
-echo "echo \$SSH_CONNECTION >> $ssh_dir/connections" > "$ssh_dir/rc"
+envsubst < "$ACTION_PATH/.ssh/rc" > "$ssh_dir/rc" '$github_workspace $ssh_dir'
 
 echo "Configuring ngrok..."
 envsubst < "$ACTION_PATH/.ngrok/ngrok.yml" > "$ngrok_dir/ngrok.yml"
@@ -66,8 +67,8 @@ echo "Starting tmux session..."
 tmux new-session -d -s $USER
 
 echo "Starting ngrok..."
-ngrok start --all --config "$ngrok_dir/ngrok.yml" --log "$ngrok_dir/ngrok.log" > /dev/null &
-printf "\n\n\n"
+ngrok start --all --authtoken $INPUT_NGROK_AUTHTOKEN --config "$ngrok_dir/ngrok.yml" --log "$ngrok_dir/ngrok.log" > /dev/null &
+echo "*********************************"
 
 # Get ngrok tunnels and print them
 tunnels="$(curl -s --retry-connrefused --retry 10  http://localhost:4040/api/tunnels)"
@@ -78,20 +79,29 @@ echo $tunnels | jq -c '.tunnels[]' | while read tunnel; do
     if [ "$tunnel_name" = "ssh" ]; then
       hostname=$(echo $tunnel_url | cut -d'/' -f3 | cut -d':' -f1)
       port=$(echo $tunnel_url | cut -d':' -f3)
-      echo "SSH command:"
-      echo "ssh $USER@$hostname -p $port"
-      printf "\n"
+      echo "*********************************"
+      echo "*********************************"
+      echo "***"
+      echo "*** SSH command:"
+      echo "*** ssh $USER@$hostname -p $port"
+      echo "***"
       if [ -n "$random_password" ]; then
-        echo "Random password:"
-        echo "$random_password"
-        printf "\n"
+        echo "*** Random password:"
+        echo "*** $random_password"
+        echo "***"
       fi
-      echo "After logging in, you can attach to the $USER tmux session:"
-      echo "tmux attach"
-      printf "\n\n\n"
+      echo "*** After logging in, you can attach to the $USER tmux session:"
+      echo "*** tmux attach"
+      echo "***"
+      echo "*********************************"
+      echo "*********************************"
     else
-      echo "$tunnel_name:"
-      echo $tunnel_url
-      printf "\n\n\n"
+      echo "*********************************"
+      echo "***"
+      echo "*** $tunnel_name:"
+      echo "*** $tunnel_url"
+      echo "***"
+      echo "*********************************"
+      echo "*********************************"
     fi
 done
