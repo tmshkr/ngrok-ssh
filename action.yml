@@ -22,5 +22,5 @@ inputs:
 
 runs:
   using: "node20"
-  main: "main.js"
-  post: "post.js"
+  main: "main.mjs"
+  post: "post.mjs"
