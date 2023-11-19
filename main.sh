@@ -3,8 +3,8 @@
 export ssh_dir="$HOME/.ssh"
 export ngrok_dir="$HOME/.ngrok"
 
-mkdir -p $ssh_dir
-mkdir -p $ngrok_dir
+mkdir -m 700 $ssh_dir
+mkdir -m 700 $ngrok_dir
 
 echo "Configuring sshd..."
 echo "$(envsubst < "$ssh_dir/config")" > "$ssh_dir/config"
@@ -12,6 +12,7 @@ echo "echo \$SSH_CONNECTION >> connections" > "$ssh_dir/rc"
 
 echo "Configuring ngrok..."
 echo "$(envsubst < "$ngrok_dir/ngrok.yml")" > "$ngrok_dir/ngrok.yml"
+
 
 if [ -z "$INPUT_NGROK_AUTHTOKEN" ]; then
   echo "You must provide your ngrok authtoken. Visit https://dashboard.ngrok.com/get-started/your-authtoken to get it."
