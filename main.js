@@ -1,7 +1,7 @@
 const { execSync } = require("child_process");
-
+const actionPath = `/home/runner/work/_actions/tmshkr/ngrok-ssh/dev`;
 try {
-  execSync(`/home/runner/work/_actions/tmshkr/ngrok-ssh/dev/main.sh`, {
+  execSync(`ACTION_PATH=${actionPath} ${actionPath}/main.sh`, {
     stdio: "inherit",
   });
 } catch (err) {
