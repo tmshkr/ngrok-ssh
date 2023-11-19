@@ -22,6 +22,10 @@ inputs:
     description: "Whether to add the GITHUB_ACTOR public key to the authorized_keys file."
     required: false
     default: true
+  WAIT_FOR_CONNECTION:
+    description: "Whether to wait for an SSH connection before exiting."
+    required: false
+    default: true
 
 runs:
   using: "node20"
