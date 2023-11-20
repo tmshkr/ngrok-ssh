@@ -23,7 +23,7 @@ inputs:
     required: false
     default: true
   WAIT_FOR_CONNECTION:
-    description: "Whether to wait for an SSH connection before allowing the workflow run to terminate."
+    description: "Whether to wait for an SSH connection before allowing the workflow run to proceed."
     required: false
     default: false
 
