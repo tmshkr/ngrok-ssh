@@ -106,3 +106,10 @@ echo $tunnels | jq -c '.tunnels[]' | while read tunnel; do
       echo "*********************************"
     fi
 done
+
+if [ "$INPUT_WAIT_FOR_CONNECTION" == true ] && [ ! -f "$ssh_dir/connections" ]; then
+  while [ ! -f "$ssh_dir/connections" ]; do
+    echo "Waiting for SSH user to login..."
+    sleep 5
+  done
+fi
