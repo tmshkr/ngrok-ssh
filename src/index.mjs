@@ -1,23 +1,26 @@
+import * as core from "@actions/core";
 import { execSync } from "child_process";
 import { ACTION_PATH } from "./env.mjs";
 
-const action = process.argv[2];
+const stage = process.argv[2] || core.getState("next_stage") || "main";
 
-switch (action) {
-  case "post":
-    run(action);
-    break;
+switch (stage) {
   case "main":
-    run(action);
+    core.saveState("next_stage", "post");
+    run(stage);
+    break;
+  case "post":
+    core.saveState("next_stage", null);
+    run(stage);
     break;
   default:
-    console.error(`Unknown action: ${action}`);
+    console.error(`Unknown stage: ${stage}`);
     process.exit(1);
 }
 
-function run(action) {
+function run(stage) {
   try {
-    execSync(`${ACTION_PATH}/src/${action}.sh`, {
+    execSync(`${ACTION_PATH}/src/${stage}.sh`, {
       env: { ...process.env, ACTION_PATH },
       stdio: "inherit",
     });
