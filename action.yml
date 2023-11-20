@@ -8,7 +8,7 @@ inputs:
     description: "Path to your custom ngrok config file, which will be merged with the default ngrok-ssh config file. See https://ngrok.com/docs/agent/config/#config-file-merging for more information."
     required: false
   SET_RANDOM_PASSWORD:
-    description: "Whether to set a random password for the SSH user. If no public key is available, this will be set to true."
+    description: "Whether to set a random password for the SSH user. If no public key for the SSH user is available, it will be set regardless."
     required: false
     default: false
   SSH_PORT:
@@ -19,11 +19,11 @@ inputs:
     description: "SSH public key to add to the authorized_keys file."
     required: false
   USE_GITHUB_ACTOR_KEY:
-    description: "Whether to add the GITHUB_ACTOR public key to the authorized_keys file."
+    description: "Whether to add the GITHUB_ACTOR's public keys to the authorized_keys file."
     required: false
     default: true
   WAIT_FOR_CONNECTION:
-    description: "Whether to wait for an SSH connection before exiting."
+    description: "Whether to wait for an SSH connection before allowing the workflow run to terminate."
     required: false
     default: false
 
