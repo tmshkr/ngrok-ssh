@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "main": "main.mjs",
   "scripts": {
-    "main:dev": "node --env-file=.env src/index.mjs main",
-    "post:dev": "node --env-file=.env src/index.mjs post"
+    "build": "ncc build src/index.mjs -o dist",
+    "dev:main": "node --env-file=.env src/index.mjs main",
+    "dev:post": "node --env-file=.env src/index.mjs post"
   },
   "engines": {
     "node": ">=20.6.0"
@@ -14,5 +15,9 @@
     "email": "tim@tmshkr.com",
     "url": "https://github.com/tmshkr"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.10.1",
+    "@vercel/ncc": "^0.38.1"
+  }
 }
