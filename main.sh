@@ -74,42 +74,41 @@ echo "Starting SSH server..."
 
 echo "Starting ngrok..."
 ngrok start --all --config "$ngrok_config" --log "$ngrok_dir/ngrok.log" > /dev/null &
-echo "*********************************"
 
 # Get ngrok tunnels and print them
-tunnels="$(curl -s --retry-connrefused --retry 10  http://localhost:4040/api/tunnels)"
-echo $tunnels | jq -c '.tunnels[]' | while read tunnel; do
+echo_tunnels() {
+  tunnels="$(curl -s --retry-connrefused --retry 10  http://localhost:4040/api/tunnels)"
+  echo $tunnels | jq -c '.tunnels[]' | while read tunnel; do
     tunnel_name=$(echo $tunnel | jq -r ".name")
     tunnel_url=$(echo $tunnel | jq -r ".public_url")
-    
-    if [ "$tunnel_name" = "ssh" ]; then
-      hostname=$(echo $tunnel_url | cut -d'/' -f3 | cut -d':' -f1)
-      port=$(echo $tunnel_url | cut -d':' -f3)
-      echo "*********************************"
-      echo "*********************************"
-      echo "***"
-      echo "*** SSH command:"
-      echo "*** ssh $USER@$hostname -p $port"
-      echo "***"
-      if [ -n "$random_password" ]; then
-        echo "*** Random password:"
-        echo "*** $random_password"
-        echo "***"
+      if [ "$tunnel_name" = "ssh" ]; then
+        hostname=$(echo $tunnel_url | cut -d'/' -f3 | cut -d':' -f1)
+        port=$(echo $tunnel_url | cut -d':' -f3)
+        echo "*********************************"
+        printf "\n"
+        echo "SSH command:"
+        echo "ssh $USER@$hostname -p $port"
+        printf "\n"
+        if [ -n "$random_password" ]; then
+          echo "Random password:"
+          echo "$random_password"
+          printf "\n"
+        fi
+      else
+        echo "*********************************"
+        printf "\n"
+        echo "$tunnel_name:"
+        echo "$tunnel_url"
+        printf "\n"
       fi
-    else
-      echo "*********************************"
-      echo "***"
-      echo "*** $tunnel_name:"
-      echo "*** $tunnel_url"
-      echo "***"
-      echo "*********************************"
-      echo "*********************************"
-    fi
-done
-
-if [ "$INPUT_WAIT_FOR_CONNECTION" == true ] && [ ! -f "$ssh_dir/connections" ]; then
-  while [ ! -f "$ssh_dir/connections" ]; do
-    echo "Waiting for SSH user to login..."
-    sleep 5
   done
-fi
+}
+
+while true; do
+  echo_tunnels
+  if [ -f "$ssh_dir/connections" ] || [ "$INPUT_WAIT_FOR_CONNECTION" == false ]; then
+    break
+  fi
+  echo "Waiting for SSH user to login..."
+  sleep 5
+done
