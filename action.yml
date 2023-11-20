@@ -29,8 +29,8 @@ inputs:
 
 runs:
   using: "node20"
-  main: "main.mjs"
-  post: "post.mjs"
+  main: "src/index.mjs main"
+  post: "src/index.mjs post"
 
 branding:
   icon: "terminal"

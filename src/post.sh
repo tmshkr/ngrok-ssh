@@ -1,5 +1,5 @@
 #!/bin/bash -e
-if [ $GITHUB_ACTIONS == false ]; then
+if [ $GITHUB_ACTIONS != true ]; then
   HOME="$PWD/dev"
   USER="dev"
 fi

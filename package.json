@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "main": "main.mjs",
   "scripts": {
-    "prep:dev": "rm -rf dev && mkdir dev",
-    "main:dev": "npm run prep:dev && node --env-file=.env main.mjs",
-    "post:dev": "node --env-file=.env post.mjs"
+    "main:dev": "node --env-file=.env src/index.mjs main",
+    "post:dev": "node --env-file=.env src/index.mjs post"
   },
   "engines": {
     "node": ">=20.6.0"
