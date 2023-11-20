@@ -31,3 +31,7 @@ runs:
   using: "node20"
   main: "main.mjs"
   post: "post.mjs"
+
+branding:
+  icon: "terminal"
+  color: "green"
