@@ -1,7 +1,7 @@
 {
   "name": "ngrok-ssh",
   "version": "1.0.0",
-  "main": "main.mjs",
+  "main": "dist/index.mjs",
   "scripts": {
     "build": "ncc build src/index.mjs -o dist",
     "dev:main": "node --env-file=.env src/index.mjs main",
