@@ -33,4 +33,4 @@ jobs:
       - run: npm start
 ```
 
-You should either have a long-running process (like a web server) or a `sleep` command after the `ngrok-ssh` step, so that the workflow doesn't terminate before you have a chance to connect. Otherwise, you can set the `WAIT_FOR_CONNECTION` input to true, and it will wait for you to connect to the tunnel before allowing the workflow to proceed.
+You should have a long-running process, like a build, web server, or a `sleep` command after the `ngrok-ssh` step, so that the workflow doesn't terminate before you have a chance to connect. You can also set the `WAIT_FOR_CONNECTION` input to true, and the action will wait for you to connect to the tunnel before allowing the workflow to proceed.
