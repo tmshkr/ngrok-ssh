@@ -12,7 +12,7 @@ mkdir -m 700 $ngrok_dir
 
 echo "Configuring sshd..."
 envsubst <"$ACTION_PATH/.ssh/config" >"$ssh_dir/config"
-envsubst <"$ACTION_PATH/.ssh/rc" >"$ssh_dir/rc" '$ssh_dir'
+envsubst <"$ACTION_PATH/.ssh/rc" >"$ssh_dir/rc" '$ssh_dir $GITHUB_WORKSPACE'
 
 echo "Configuring ngrok..."
 envsubst <"$ACTION_PATH/.ngrok/ngrok.yml" >"$ngrok_dir/ngrok.yml"
@@ -117,13 +117,11 @@ echo $tunnels | jq -c '.tunnels[]' | while read tunnel; do
     hostname=$(echo $tunnel_url | cut -d'/' -f3 | cut -d':' -f1)
     port=$(echo $tunnel_url | cut -d':' -f3)
     echo "SSH_COMMAND=\"ssh $USER@$hostname -p $port\"" >>"$GITHUB_OUTPUT"
-    echo "SSH_HOST=$hostname" >>"$GITHUB_OUTPUT"
-    echo "SSH_PORT=$port" >>"$GITHUB_OUTPUT"
-    echo "SSH_USER=$USER" >>"$GITHUB_OUTPUT"
+    echo "SSH_HOST=\"$hostname\"" >>"$GITHUB_OUTPUT"
+    echo "SSH_PORT=\"$port\"" >>"$GITHUB_OUTPUT"
+    echo "SSH_USER=\"$USER\"" >>"$GITHUB_OUTPUT"
     if [ -n "$random_password" ]; then
       echo "SSH_PASSWORD=\"$random_password\"" >>"$GITHUB_OUTPUT"
     fi
-  # else
-  #   echo "$tunnel_name_URL=$tunnel_url" >>"$GITHUB_OUTPUT"
   fi
 done

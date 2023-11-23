@@ -39,8 +39,6 @@ outputs:
     description: "The public port of the SSH server."
   SSH_USER:
     description: "The username of the SSH user."
-  # $tunnel_name_URL:
-  #   description: "The URL of an additional ngrok tunnel that has been provisioned, where $tunnel_name is the name of the tunnel."
 
 runs:
   using: "node20"
