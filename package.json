@@ -1,25 +1,15 @@
 {
   "name": "ngrok-ssh",
   "version": "1.0.0",
-  "main": "dist/index.js",
+  "main": "main.js",
   "scripts": {
-    "build": "ncc build src/index.ts -o dist",
-    "dev:main": "./set-env.sh ts-node src/index.ts main",
-    "dev:post": "./set-env.sh ts-node src/index.ts post"
+    "dev:main": "node --env-file=.env src/main.js",
+    "dev:post": "node --env-file=.env src/post.js"
   },
   "author": {
     "name": "Tim Shaker",
     "email": "tim@tmshkr.com",
     "url": "https://github.com/tmshkr"
   },
-  "license": "MIT",
-  "dependencies": {
-    "@actions/core": "^1.10.1",
-    "@vercel/ncc": "^0.38.1",
-    "typescript": "^5.3.2"
-  },
-  "devDependencies": {
-    "@types/node": "^20.9.3",
-    "ts-node": "^10.9.1"
-  }
+  "license": "MIT"
 }
