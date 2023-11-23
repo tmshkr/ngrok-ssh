@@ -123,7 +123,7 @@ echo $tunnels | jq -c '.tunnels[]' | while read tunnel; do
     if [ -n "$random_password" ]; then
       echo "SSH_PASSWORD=\"$random_password\"" >>"$GITHUB_OUTPUT"
     fi
-  else
-    echo "$tunnel_name_URL=$tunnel_url" >>"$GITHUB_OUTPUT"
+  # else
+  #   echo "$tunnel_name_URL=$tunnel_url" >>"$GITHUB_OUTPUT"
   fi
 done
