@@ -110,7 +110,7 @@ while true; do
 done
 
 # Set outputs
-echo "NGROK_TUNNELS=\"$tunnels\"" >>"$GITHUB_OUTPUT"
+echo "NGROK_TUNNELS=$(echo $tunnels | jq -c '.tunnels | map(del(.config, .metrics)) | tostring')" >>"$GITHUB_OUTPUT"
 echo SSH_HOST_PUBLIC_KEY=\"$(cat "$ssh_dir/ssh_host_rsa_key.pub")\" >>"$GITHUB_OUTPUT"
 echo $tunnels | jq -c '.tunnels[]' | while read tunnel; do
   tunnel_name=$(echo $tunnel | jq -r ".name")
