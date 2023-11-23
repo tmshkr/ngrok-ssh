@@ -1,14 +1,10 @@
 {
   "name": "ngrok-ssh",
   "version": "1.0.0",
-  "main": "main.mjs",
+  "main": "main.js",
   "scripts": {
-    "prep:dev": "rm -rf dev && mkdir dev",
-    "main:dev": "npm run prep:dev && node --env-file=.env main.mjs",
-    "post:dev": "node --env-file=.env post.mjs"
-  },
-  "engines": {
-    "node": ">=20.6.0"
+    "dev:main": "node --env-file=.env src/main.js",
+    "dev:post": "node --env-file=.env src/post.js"
   },
   "author": {
     "name": "Tim Shaker",
