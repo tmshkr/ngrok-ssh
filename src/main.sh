@@ -12,7 +12,8 @@ mkdir -m 700 $ngrok_dir
 
 echo "Configuring sshd..."
 envsubst <"$ACTION_PATH/.ssh/config" >"$ssh_dir/config"
-envsubst <"$ACTION_PATH/.ssh/rc" >"$ssh_dir/rc" '$ssh_dir $GITHUB_WORKSPACE'
+envsubst <"$ACTION_PATH/.ssh/rc" >"$ssh_dir/rc" '$ssh_dir'
+echo "cd $GITHUB_WORKSPACE" >>"$HOME/.bash_profile"
 
 echo "Configuring ngrok..."
 envsubst <"$ACTION_PATH/.ngrok/ngrok.yml" >"$ngrok_dir/ngrok.yml"
