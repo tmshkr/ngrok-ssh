@@ -109,13 +109,13 @@ while true; do
 done
 
 # Set outputs
-echo SSH_HOST_PUBLIC_KEY=$(cat "$ssh_dir/ssh_host_rsa_key.pub") >>"$GITHUB_OUTPUT"
+echo SSH_HOST_PUBLIC_KEY=\"$(cat "$ssh_dir/ssh_host_rsa_key.pub")\" >>"$GITHUB_OUTPUT"
 echo $tunnels | jq -c '.tunnels[]' | while read tunnel; do
-  local tunnel_name=$(echo $tunnel | jq -r ".name")
-  local tunnel_url=$(echo $tunnel | jq -r ".public_url")
+  tunnel_name=$(echo $tunnel | jq -r ".name")
+  tunnel_url=$(echo $tunnel | jq -r ".public_url")
   if [ "$tunnel_name" = "ssh" ]; then
-    local hostname=$(echo $tunnel_url | cut -d'/' -f3 | cut -d':' -f1)
-    local port=$(echo $tunnel_url | cut -d':' -f3)
+    hostname=$(echo $tunnel_url | cut -d'/' -f3 | cut -d':' -f1)
+    port=$(echo $tunnel_url | cut -d':' -f3)
     echo "SSH_COMMAND=\"ssh $USER@$hostname -p $port\"" >>"$GITHUB_OUTPUT"
     echo "SSH_HOST=$hostname" >>"$GITHUB_OUTPUT"
     echo "SSH_PORT=$port" >>"$GITHUB_OUTPUT"
