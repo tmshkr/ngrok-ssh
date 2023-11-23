@@ -26,11 +26,26 @@ inputs:
     description: "Whether to wait for an SSH connection before allowing the workflow run to proceed."
     required: false
     default: false
+outputs:
+  SSH_COMMAND:
+    description: "The command to use to SSH into the runner."
+  SSH_HOST:
+    description: "The hostname of the SSH server."
+  SSH_HOST_PUBLIC_KEY:
+    description: "The public key of the SSH host."
+  SSH_PASSWORD:
+    description: "The password of the SSH user, if any."
+  SSH_PORT:
+    description: "The public port of the SSH server."
+  SSH_USER:
+    description: "The username of the SSH user."
+  $tunnel_name_URL:
+    description: "The URL of an additional ngrok tunnel that has been provisioned, where $tunnel_name is the name of the tunnel."
 
 runs:
   using: "node20"
-  main: "dist/index.mjs"
-  post: "dist/index.mjs"
+  main: "main.js"
+  post: "post.js"
 
 branding:
   icon: "terminal"
