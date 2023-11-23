@@ -6,10 +6,6 @@ fi
 
 export ssh_dir="$HOME/.ssh"
 export ngrok_dir="$HOME/.ngrok"
-export github_vars=$(printenv | grep "^GITHUB" | awk -F= '{print $1"=\""$2"\""}' | tr '\n' ' ')
-export runner_vars=$(printenv | grep "^RUNNER" | awk -F= '{print $1"=\""$2"\""}' | tr '\n' ' ')
-export input_vars=$(printenv | grep "^INPUT" | awk -F= '{print $1"=\""$2"\""}' | tr '\n' ' ')
-export ssh_vars="CI=true $github_vars $runner_vars $input_vars"
 
 mkdir -m 700 $ssh_dir
 mkdir -m 700 $ngrok_dir
@@ -75,14 +71,14 @@ echo "Starting ngrok..."
 ngrok start --all --config "$ngrok_config" --log "$ngrok_dir/ngrok.log" >/dev/null &
 
 # Get ngrok tunnels and print them
-echo_tunnels() {
-  tunnels="$(curl -s --retry-connrefused --retry 10 http://localhost:4040/api/tunnels)"
+tunnels="$(curl -s --retry-connrefused --retry 10 http://localhost:4040/api/tunnels)"
+print_tunnels() {
   echo $tunnels | jq -c '.tunnels[]' | while read tunnel; do
-    tunnel_name=$(echo $tunnel | jq -r ".name")
-    tunnel_url=$(echo $tunnel | jq -r ".public_url")
+    local tunnel_name=$(echo $tunnel | jq -r ".name")
+    local tunnel_url=$(echo $tunnel | jq -r ".public_url")
     if [ "$tunnel_name" = "ssh" ]; then
-      hostname=$(echo $tunnel_url | cut -d'/' -f3 | cut -d':' -f1)
-      port=$(echo $tunnel_url | cut -d':' -f3)
+      local hostname=$(echo $tunnel_url | cut -d'/' -f3 | cut -d':' -f1)
+      local port=$(echo $tunnel_url | cut -d':' -f3)
       echo "*********************************"
       printf "\n"
       echo "SSH command:"
@@ -104,10 +100,30 @@ echo_tunnels() {
 }
 
 while true; do
-  echo_tunnels
+  print_tunnels
   if [ -f "$ssh_dir/connections" ] || [ "$INPUT_WAIT_FOR_CONNECTION" == false ]; then
     break
   fi
   echo "Waiting for SSH user to login..."
   sleep 5
+done
+
+# Set outputs
+echo SSH_HOST_PUBLIC_KEY=$(cat "$ssh_dir/ssh_host_rsa_key.pub") >>"$GITHUB_OUTPUT"
+echo $tunnels | jq -c '.tunnels[]' | while read tunnel; do
+  local tunnel_name=$(echo $tunnel | jq -r ".name")
+  local tunnel_url=$(echo $tunnel | jq -r ".public_url")
+  if [ "$tunnel_name" = "ssh" ]; then
+    local hostname=$(echo $tunnel_url | cut -d'/' -f3 | cut -d':' -f1)
+    local port=$(echo $tunnel_url | cut -d':' -f3)
+    echo "SSH_COMMAND=\"ssh $USER@$hostname -p $port\"" >>"$GITHUB_OUTPUT"
+    echo "SSH_HOST=$hostname" >>"$GITHUB_OUTPUT"
+    echo "SSH_PORT=$port" >>"$GITHUB_OUTPUT"
+    echo "SSH_USER=$USER" >>"$GITHUB_OUTPUT"
+    if [ -n "$random_password" ]; then
+      echo "SSH_PASSWORD=\"$random_password\"" >>"$GITHUB_OUTPUT"
+    fi
+  else
+    echo "$tunnel_name_URL=$tunnel_url" >>"$GITHUB_OUTPUT"
+  fi
 done
