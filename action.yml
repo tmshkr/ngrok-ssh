@@ -28,7 +28,7 @@ inputs:
     default: false
 outputs:
   NGROK_TUNNELS:
-    description: "JSON string of provisioned ngrok tunnels from the /api/tunnels endpoint, including any additional configured tunnels."
+    description: "JSON representation of provisioned ngrok tunnels from the /api/tunnels endpoint, including any additional configured tunnels."
   SSH_COMMAND:
     description: "The command to use to SSH into the runner."
   SSH_HOST:
