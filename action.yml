@@ -1,6 +1,9 @@
 name: ngrok-ssh
 description: SSH into your GitHub Actions runner with ngrok.
 inputs:
+  BASH_PROFILE:
+    description: "Path to a text file to append to the host's .bash_profile."
+    required: false
   NGROK_AUTHTOKEN:
     description: "Your ngrok auth token, required for TCP tunnels."
     required: true
@@ -15,8 +18,14 @@ inputs:
     description: "SSH port to use with ngrok."
     required: false
     default: 2222
-  SSH_PUBLIC_KEY:
-    description: "SSH public key to add to the authorized_keys file."
+  SSH_CLIENT_PUBLIC_KEY:
+    description: "Public key of an SSH client to add to the authorized_keys file."
+    required: false
+  SSH_HOST_PRIVATE_KEY:
+    description: "Private key to use for the SSH host."
+    required: false
+  SSH_HOST_PUBLIC_KEY:
+    description: "Public key to use for the SSH host."
     required: false
   USE_GITHUB_ACTOR_KEY:
     description: "Whether to add the GITHUB_ACTOR's public keys to the authorized_keys file."
@@ -29,9 +38,7 @@ inputs:
 outputs:
   NGROK_TUNNELS:
     description: "JSON representation of provisioned ngrok tunnels from the /api/tunnels endpoint, including any additional configured tunnels."
-  SSH_COMMAND:
-    description: "The command to use to SSH into the runner."
-  SSH_HOST:
+  SSH_HOSTNAME:
     description: "The hostname of the SSH server."
   SSH_HOST_PUBLIC_KEY:
     description: "The public key of the SSH host."

@@ -10,11 +10,6 @@ export ngrok_dir="$HOME/.ngrok"
 mkdir -m 700 $ssh_dir
 mkdir -m 700 $ngrok_dir
 
-echo "Configuring sshd..."
-envsubst <"$ACTION_PATH/.ssh/config" >"$ssh_dir/config"
-envsubst <"$ACTION_PATH/.ssh/rc" >"$ssh_dir/rc" '$ssh_dir'
-echo "cd $GITHUB_WORKSPACE" >>"$HOME/.bash_profile"
-
 echo "Configuring ngrok..."
 envsubst <"$ACTION_PATH/.ngrok/ngrok.yml" >"$ngrok_dir/ngrok.yml"
 ngrok_config="$ngrok_dir/ngrok.yml"
@@ -29,6 +24,25 @@ if [ -z "$INPUT_NGROK_AUTHTOKEN" ]; then
   exit 1
 fi
 
+echo "Configuring sshd..."
+envsubst <"$ACTION_PATH/.ssh/config" >"$ssh_dir/config"
+envsubst <"$ACTION_PATH/.ssh/rc" >"$ssh_dir/rc" '$ssh_dir'
+echo "cd $GITHUB_WORKSPACE" >>"$HOME/.bash_profile"
+
+if [ -n "$BASH_PROFILE" ]; then
+  echo "Adding custom bash_profile..."
+  cat "$GITHUB_WORKSPACE/$BASH_PROFILE" >>"$HOME/.bash_profile"
+fi
+
+if [ -n "$INPUT_SSH_HOST_PRIVATE_KEY" ] && [ -n "$INPUT_SSH_HOST_PUBLIC_KEY" ]; then
+  echo "Setting SSH host's public and private keys..."
+  cat "$INPUT_SSH_HOST_PRIVATE_KEY" >>"$ssh_dir/ssh_host_key"
+  cat "$INPUT_SSH_HOST_PUBLIC_KEY" >>"$ssh_dir/ssh_host_key.pub"
+else
+  echo "Generating SSH host's public and private keys..."
+  ssh-keygen -q -t rsa -f "$ssh_dir/ssh_host_key" -N ''
+fi
+
 # Setup ssh login credentials
 if [ "$INPUT_USE_GITHUB_ACTOR_KEY" == true ]; then
   curl -s "https://api.github.com/users/$GITHUB_ACTOR/keys" | jq -r '.[].key' >>"$ssh_dir/authorized_keys"
@@ -40,8 +54,8 @@ if [ "$INPUT_USE_GITHUB_ACTOR_KEY" == true ]; then
   fi
 fi
 
-if [ -n "$INPUT_SSH_PUBLIC_KEY" ]; then
-  echo "$INPUT_SSH_PUBLIC_KEY" >>"$ssh_dir/authorized_keys"
+if [ -n "$INPUT_SSH_CLIENT_PUBLIC_KEY" ]; then
+  echo "$INPUT_SSH_CLIENT_PUBLIC_KEY" >>"$ssh_dir/authorized_keys"
 fi
 
 if ! grep -q . "$ssh_dir/authorized_keys" || [ "$INPUT_SET_RANDOM_PASSWORD" == true ]; then
@@ -61,9 +75,6 @@ if ! command -v "ngrok" >/dev/null 2>&1; then
   mv ngrok /usr/local/bin/ngrok
   rm ngrok-v3-stable-linux-amd64.tgz
 fi
-
-echo 'Creating SSH server key...'
-ssh-keygen -q -f "$ssh_dir/ssh_host_rsa_key" -N ''
 
 echo "Starting SSH server..."
 /usr/sbin/sshd -f "$ssh_dir/config"
@@ -111,9 +122,8 @@ done
 
 # Set outputs
 echo "NGROK_TUNNELS=$(echo $tunnels | jq -c '.tunnels | map(del(.config, .metrics))')" >>"$GITHUB_OUTPUT"
-echo SSH_HOST_PUBLIC_KEY=$(cat "$ssh_dir/ssh_host_rsa_key.pub") >>"$GITHUB_OUTPUT"
-echo "SSH_COMMAND=ssh $USER@$hostname -p $port" >>"$GITHUB_OUTPUT"
-echo "SSH_HOST=$hostname" >>"$GITHUB_OUTPUT"
+echo SSH_HOST_PUBLIC_KEY=$(cat "$ssh_dir/ssh_host_key.pub") >>"$GITHUB_OUTPUT"
+echo "SSH_HOSTNAME=$hostname" >>"$GITHUB_OUTPUT"
 echo "SSH_PORT=$port" >>"$GITHUB_OUTPUT"
 echo "SSH_USER=$USER" >>"$GITHUB_OUTPUT"
 if [ -n "$random_password" ]; then
