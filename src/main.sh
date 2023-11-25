@@ -29,9 +29,9 @@ envsubst <"$ACTION_PATH/.ssh/config" >"$ssh_dir/config"
 envsubst <"$ACTION_PATH/.ssh/rc" >"$ssh_dir/rc" '$ssh_dir'
 echo "cd $GITHUB_WORKSPACE" >>"$HOME/.bash_profile"
 
-if [ -n "$BASH_PROFILE" ]; then
+if [ -n "$INPUT_BASH_PROFILE" ]; then
   echo "Adding custom bash_profile..."
-  cat "$GITHUB_WORKSPACE/$BASH_PROFILE" >>"$HOME/.bash_profile"
+  cat "$GITHUB_WORKSPACE/$INPUT_BASH_PROFILE" >>"$HOME/.bash_profile"
 fi
 
 if [ -n "$INPUT_SSH_HOST_PRIVATE_KEY" ] && [ -n "$INPUT_SSH_HOST_PUBLIC_KEY" ]; then
