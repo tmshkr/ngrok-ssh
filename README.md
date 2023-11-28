@@ -2,7 +2,7 @@
 
 Installs ngrok and opens an SSH tunnel into your GitHub Actions runner.
 
-Useful for debugging builds and previewing your app on a live server.
+Useful for debugging builds, previewing your app on a live server, and managing concurrent workflows.
 
 ## Inputs/Outputs
 
