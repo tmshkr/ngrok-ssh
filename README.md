@@ -2,7 +2,7 @@
 
 Installs ngrok and opens an SSH tunnel into your GitHub Actions runner.
 
-Useful for debugging builds and previewing your app on a live server.
+Useful for debugging builds, previewing your app on a live server, and managing concurrent workflows.
 
 ## Inputs/Outputs
 
@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: tmshkr/ngrok-ssh@v1.1
+      - uses: tmshkr/ngrok-ssh@v1.2
         with:
           NGROK_AUTHTOKEN: ${{ secrets.NGROK_AUTHTOKEN }}
           NGROK_CONFIG_FILE: "ngrok.yml"
