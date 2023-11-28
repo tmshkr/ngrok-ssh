@@ -36,8 +36,8 @@ fi
 
 if [ -n "$INPUT_SSH_HOST_PRIVATE_KEY" ] && [ -n "$INPUT_SSH_HOST_PUBLIC_KEY" ]; then
   echo "Setting SSH host's public and private keys..."
-  cat "$INPUT_SSH_HOST_PRIVATE_KEY" >>"$ssh_dir/ssh_host_key"
-  cat "$INPUT_SSH_HOST_PUBLIC_KEY" >>"$ssh_dir/ssh_host_key.pub"
+  echo "$INPUT_SSH_HOST_PRIVATE_KEY" >>"$ssh_dir/ssh_host_key"
+  echo "$INPUT_SSH_HOST_PUBLIC_KEY" >>"$ssh_dir/ssh_host_key.pub"
 else
   echo "Generating SSH host's public and private keys..."
   ssh-keygen -q -t rsa -f "$ssh_dir/ssh_host_key" -N ''
