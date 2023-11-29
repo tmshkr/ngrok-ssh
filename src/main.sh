@@ -1,7 +1,7 @@
 #!/bin/bash -e
 if [ $GITHUB_ACTIONS != true ]; then
-  HOME="$PWD/dev"
-  USER="dev"
+  export HOME="$PWD/dev"
+  export USER="dev"
 fi
 
 if [ -z "$USER" ]; then
