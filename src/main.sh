@@ -5,7 +5,7 @@ if [ $GITHUB_ACTIONS != true ]; then
 fi
 
 if [ -z "$USER" ]; then
-  USER="root"
+  USER=$(whoami)
 fi
 
 export ssh_dir="$HOME/.ssh"
