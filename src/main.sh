@@ -4,6 +4,10 @@ if [ $GITHUB_ACTIONS != true ]; then
   USER="dev"
 fi
 
+if [ -z "$USER" ]; then
+  USER="root"
+fi
+
 export ssh_dir="$HOME/.ssh"
 export ngrok_dir="$HOME/.ngrok"
 
