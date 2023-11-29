@@ -1,7 +1,7 @@
 #!/bin/bash -e
 if [ $GITHUB_ACTIONS != true ]; then
   PWD=$(pwd)
-  mkdir -m 700 "$PWD/dev"
+  mkdir -m 700 -p "$PWD/dev"
   export HOME="$PWD/dev"
   export USER="dev"
 fi
