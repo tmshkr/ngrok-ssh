@@ -109,7 +109,7 @@ echo "Starting ngrok..."
 ngrok start --all --config "$ngrok_config" --log "$ngrok_dir/ngrok.log" >/dev/null &
 
 echo "Getting ngrok tunnels..."
-tunnels="$(curl -s --retry-connrefused --retry 10 http://localhost:4040/api/tunnels)"
+tunnels="$(curl -sS --retry-all-errors --retry 10 http://localhost:4040/api/tunnels)"
 echo "NGROK_TUNNELS=$(echo $tunnels | jq -c '.tunnels | map(del(.config, .metrics))')" >>"$GITHUB_OUTPUT"
 
 print_tunnels() {
