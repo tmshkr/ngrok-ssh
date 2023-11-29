@@ -17,6 +17,13 @@ if ! command -v "envsubst" >/dev/null 2>&1; then
   mv envsubst-Linux-x86_64 /usr/local/bin/envsubst
 fi
 
+if ! command -v "jq" >/dev/null 2>&1; then
+  echo "Installing jq..."
+  wget -q https://github.com/jqlang/jq/releases/download/jq-1.7/jq-linux-amd64
+  chmod +x jq-linux-amd64
+  mv jq-linux-amd64 /usr/local/bin/jq
+fi
+
 echo "Configuring ngrok..."
 envsubst <"$ACTION_PATH/.ngrok/ngrok.yml" >"$ngrok_dir/ngrok.yml"
 ngrok_config="$ngrok_dir/ngrok.yml"
