@@ -24,6 +24,20 @@ if ! command -v "jq" >/dev/null 2>&1; then
   mv jq-linux-amd64 /usr/local/bin/jq
 fi
 
+if ! command -v "ngrok" >/dev/null 2>&1; then
+  echo "Installing ngrok..."
+  wget -q https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz
+  tar -xzf ngrok-v3-stable-linux-amd64.tgz
+  chmod +x ngrok
+  mv ngrok /usr/local/bin/ngrok
+  rm ngrok-v3-stable-linux-amd64.tgz
+fi
+
+if ! command -v "sshd" >/dev/null 2>&1; then
+  echo "Installing sshd..."
+  su -c "apt-get update && apt-get install openssh-server -y && mkdir /run/sshd"
+fi
+
 echo "Configuring ngrok..."
 envsubst <"$ACTION_PATH/.ngrok/ngrok.yml" >"$ngrok_dir/ngrok.yml"
 ngrok_config="$ngrok_dir/ngrok.yml"
@@ -79,16 +93,6 @@ if ! grep -q . "$ssh_dir/authorized_keys" || [ "$INPUT_SET_RANDOM_PASSWORD" == t
   if [ $GITHUB_ACTIONS == true ]; then
     echo "$USER:$random_password" | sudo chpasswd
   fi
-fi
-
-# Download and install ngrok
-if ! command -v "ngrok" >/dev/null 2>&1; then
-  echo "Installing ngrok..."
-  wget -q https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz
-  tar -xzf ngrok-v3-stable-linux-amd64.tgz
-  chmod +x ngrok
-  mv ngrok /usr/local/bin/ngrok
-  rm ngrok-v3-stable-linux-amd64.tgz
 fi
 
 echo "Starting SSH server..."
