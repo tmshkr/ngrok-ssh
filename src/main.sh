@@ -98,7 +98,7 @@ if ! grep -q . "$ssh_dir/authorized_keys" || [ "$INPUT_SET_RANDOM_PASSWORD" == t
   echo "Setting random password for user: $USER"
   random_password=$(openssl rand -base64 32)
   if [ $GITHUB_ACTIONS == true ]; then
-    echo "$USER:$random_password" | sudo chpasswd
+    echo "$USER:$random_password" | su -c "chpasswd"
   fi
 fi
 
