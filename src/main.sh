@@ -10,6 +10,13 @@ export ngrok_dir="$HOME/.ngrok"
 mkdir -m 700 $ssh_dir
 mkdir -m 700 $ngrok_dir
 
+if ! command -v "envsubst" >/dev/null 2>&1; then
+  echo "Installing envsubst..."
+  wget -q https://github.com/a8m/envsubst/releases/download/v1.4.2/envsubst-Linux-x86_64
+  chmod +x envsubst-Linux-x86_64
+  mv envsubst-Linux-x86_64 /usr/local/bin/envsubst
+fi
+
 echo "Configuring ngrok..."
 envsubst <"$ACTION_PATH/.ngrok/ngrok.yml" >"$ngrok_dir/ngrok.yml"
 ngrok_config="$ngrok_dir/ngrok.yml"
