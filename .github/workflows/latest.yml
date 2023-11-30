@@ -11,7 +11,8 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - run: |
+      - name: Update latest tag
+        run: |
           git push origin :refs/tags/latest
           git tag latest
           git push origin --tags
