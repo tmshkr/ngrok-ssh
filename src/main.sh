@@ -96,7 +96,7 @@ if ! grep -q . "$ssh_dir/authorized_keys"; then
 fi
 
 echo "Starting SSH server..."
-/usr/sbin/sshd -f "$ssh_dir/config"
+/usr/sbin/sshd -E "$ssh_dir/sshd.log" -f "$ssh_dir/config"
 
 echo "Starting ngrok..."
 ngrok start --all --config "$ngrok_config" --log "$ngrok_dir/ngrok.log" >/dev/null &
@@ -140,3 +140,5 @@ while true; do
   echo "Waiting for SSH user to login..."
   sleep 5
 done
+
+tail -F "$ssh_dir/sshd.log"
