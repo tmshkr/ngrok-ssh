@@ -11,6 +11,9 @@ if [ -z "$USER" ]; then
   export USER=$(whoami)
 fi
 
+echo "USER=$USER"
+echo "HOME=$HOME"
+
 export ssh_dir="$HOME/.ssh"
 export ngrok_dir="$HOME/.ngrok"
 
