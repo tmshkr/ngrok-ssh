@@ -15,7 +15,7 @@ done
 
 echo "All users logged out. Cleaning up..."
 echo "Terminating processes..."
-killall ngrok || true
+pkill ngrok || true
 kill $(cat $ssh_dir/sshd.pid) || true
 echo "Deleting $ssh_dir"
 rm -rf $ssh_dir || true
