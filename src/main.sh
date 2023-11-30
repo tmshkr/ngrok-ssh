@@ -7,8 +7,8 @@ if [ -z "$USER" ]; then
   export USER=$(whoami)
 fi
 
-export ssh_dir="/run/.ssh"
-export ngrok_dir="/run/.ngrok"
+export ssh_dir="$(echo ~$USER)/.ssh"
+export ngrok_dir="$(echo ~$USER)/.ngrok"
 
 mkdir -p -m 700 $ssh_dir
 mkdir -p -m 700 $ngrok_dir
@@ -58,11 +58,11 @@ fi
 echo "Configuring sshd..."
 envsubst <"$ACTION_PATH/.ssh/config" >"$ssh_dir/config"
 envsubst <"$ACTION_PATH/.ssh/rc" >"$ssh_dir/rc" '$ssh_dir'
-echo "cd $GITHUB_WORKSPACE" >>"$HOME/.bash_profile"
+echo "cd $GITHUB_WORKSPACE" >>"$(echo ~$USER)/.bash_profile"
 
 if [ -n "$INPUT_BASH_PROFILE" ]; then
   echo "Adding custom bash_profile..."
-  cat "$GITHUB_WORKSPACE/$INPUT_BASH_PROFILE" >>"$HOME/.bash_profile"
+  cat "$GITHUB_WORKSPACE/$INPUT_BASH_PROFILE" >>"$(echo ~$USER)/.bash_profile"
 fi
 
 if [ -n "$INPUT_SSH_HOST_PRIVATE_KEY" ] && [ -n "$INPUT_SSH_HOST_PUBLIC_KEY" ]; then
