@@ -2,6 +2,7 @@
 if [ $GITHUB_ACTIONS == true ]; then
   export USER=$(whoami)
   export HOME=$(eval echo ~$USER)
+  source install_deps.sh
 else
   export USER="dev"
   export HOME="$PWD/dev"
@@ -12,39 +13,6 @@ export ngrok_dir="$HOME/.ngrok"
 
 mkdir -p -m 700 $ssh_dir
 mkdir -p -m 700 $ngrok_dir
-
-if ! command -v "envsubst" >/dev/null 2>&1; then
-  echo "Installing envsubst..."
-  wget -q https://github.com/a8m/envsubst/releases/download/v1.4.2/envsubst-Linux-x86_64
-  chmod +x envsubst-Linux-x86_64
-  mv envsubst-Linux-x86_64 /usr/local/bin/envsubst
-fi
-
-if ! command -v "jq" >/dev/null 2>&1; then
-  echo "Installing jq..."
-  wget -q https://github.com/jqlang/jq/releases/download/jq-1.7/jq-linux-amd64
-  chmod +x jq-linux-amd64
-  mv jq-linux-amd64 /usr/local/bin/jq
-fi
-
-if ! command -v "ngrok" >/dev/null 2>&1; then
-  echo "Installing ngrok..."
-  wget -q https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz
-  tar -xzf ngrok-v3-stable-linux-amd64.tgz
-  chmod +x ngrok
-  mv ngrok /usr/local/bin/ngrok
-  rm ngrok-v3-stable-linux-amd64.tgz
-fi
-
-if ! command -v "sshd" >/dev/null 2>&1; then
-  echo "Installing sshd..."
-  su -c "apt-get update && apt-get install openssh-server -y && mkdir /run/sshd"
-fi
-
-if ! command -v "ss" >/dev/null 2>&1; then
-  echo "Installing iproute2..."
-  su -c "apt-get update && apt-get install iproute2 -y"
-fi
 
 echo "Configuring ngrok..."
 envsubst <"$ACTION_PATH/.ngrok/ngrok.yml" >"$ngrok_dir/ngrok.yml"
@@ -107,20 +75,23 @@ echo "Starting ngrok..."
 ngrok start --all --config "$ngrok_config" --log "$ngrok_dir/ngrok.log" >/dev/null &
 
 echo "Getting ngrok tunnels..."
-tunnels="$(curl -s --retry-all-errors --retry 10 http://localhost:4040/api/tunnels)"
+NGROK_TUNNELS="$(curl -s --retry-all-errors --retry 10 http://localhost:4040/api/tunnels)"
 
 print_tunnels() {
-  echo $tunnels | jq -c '.tunnels[]' | while read tunnel; do
+  echo $NGROK_TUNNELS | jq -c '.tunnels[]' | while read tunnel; do
     tunnel_name=$(echo $tunnel | jq -r ".name")
     tunnel_url=$(echo $tunnel | jq -r ".public_url")
     if [ "$tunnel_name" = "ssh" ]; then
-      hostname=$(echo $tunnel_url | cut -d'/' -f3 | cut -d':' -f1)
-      port=$(echo $tunnel_url | cut -d':' -f3)
+      SSH_HOSTNAME=$(echo $tunnel_url | cut -d'/' -f3 | cut -d':' -f1)
+      SSH_PORT=$(echo $tunnel_url | cut -d':' -f3)
+      echo "SSH_HOSTNAME=$SSH_HOSTNAME" >>"$GITHUB_OUTPUT"
+      echo "SSH_PORT=$SSH_PORT" >>"$GITHUB_OUTPUT"
+      echo "SSH_USER=$USER" >>"$GITHUB_OUTPUT"
 
       echo "*********************************"
       printf "\n"
       echo "SSH command:"
-      echo "ssh $USER@$hostname -p $port"
+      echo "ssh $USER@$SSH_HOSTNAME -p $SSH_PORT"
       printf "\n"
     else
       echo "*********************************"
@@ -141,8 +112,5 @@ while true; do
   sleep 5
 done
 
-echo "NGROK_TUNNELS=$(echo $tunnels | jq -c '.tunnels | map(del(.config, .metrics))')" >>"$GITHUB_OUTPUT"
-echo "SSH_HOST_PUBLIC_KEY=$(cat "$ssh_dir/ssh_host_key.pub")" >>"$GITHUB_OUTPUT"
-echo "SSH_HOSTNAME=$hostname" >>"$GITHUB_OUTPUT"
-echo "SSH_PORT=$port" >>"$GITHUB_OUTPUT"
-echo "SSH_USER=$USER" >>"$GITHUB_OUTPUT"
+echo "NGROK_TUNNELS=$(echo $NGROK_TUNNELS | jq -c '.tunnels | map(del(.config, .metrics))')" >>"$GITHUB_OUTPUT"
+echo SSH_HOST_PUBLIC_KEY=$(cat "$ssh_dir/ssh_host_key.pub") >>"$GITHUB_OUTPUT"
