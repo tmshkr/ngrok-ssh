@@ -2,7 +2,7 @@
 if [ $GITHUB_ACTIONS == true ]; then
   export USER=$(whoami)
   export HOME=$(eval echo ~$USER)
-  source ./install_deps.sh
+  source $ACTION_PATH/src/install_deps.sh
 else
   export USER="dev"
   export HOME="$PWD/dev"
