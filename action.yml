@@ -10,10 +10,6 @@ inputs:
   NGROK_CONFIG_FILE:
     description: "Path to your custom ngrok config file, which will be merged with the default ngrok-ssh config file. See https://ngrok.com/docs/agent/config/#config-file-merging for more information."
     required: false
-  SET_RANDOM_PASSWORD:
-    description: "Whether to set a random password for the SSH user. If no public key for the SSH user is available, it will be set regardless."
-    required: false
-    default: false
   SSH_PORT:
     description: "SSH port to use with ngrok."
     required: false
@@ -42,8 +38,6 @@ outputs:
     description: "The hostname of the SSH server."
   SSH_HOST_PUBLIC_KEY:
     description: "The public key of the SSH host."
-  SSH_PASSWORD:
-    description: "The password of the SSH user, if any."
   SSH_PORT:
     description: "The public port of the SSH server."
   SSH_USER:

@@ -1,14 +1,18 @@
 #!/bin/bash -e
-if [ $GITHUB_ACTIONS != true ]; then
-  HOME="$PWD/dev"
-  USER="dev"
+if [ $GITHUB_ACTIONS == true ]; then
+  export USER=$(whoami)
+  export HOME=$(eval echo ~$USER)
+  source $ACTION_PATH/src/install_deps.sh
+else
+  export USER="dev"
+  export HOME="$PWD/dev"
 fi
 
 export ssh_dir="$HOME/.ssh"
 export ngrok_dir="$HOME/.ngrok"
 
-mkdir -m 700 $ssh_dir
-mkdir -m 700 $ngrok_dir
+mkdir -p -m 700 $ssh_dir
+mkdir -p -m 700 $ngrok_dir
 
 echo "Configuring ngrok..."
 envsubst <"$ACTION_PATH/.ngrok/ngrok.yml" >"$ngrok_dir/ngrok.yml"
@@ -42,7 +46,6 @@ else
   echo "Generating SSH host's public and private keys..."
   ssh-keygen -q -t rsa -f "$ssh_dir/ssh_host_key" -N ''
 fi
-echo SSH_HOST_PUBLIC_KEY=$(cat "$ssh_dir/ssh_host_key.pub") >>"$GITHUB_OUTPUT"
 
 # Setup ssh login credentials
 if [ "$INPUT_USE_GITHUB_ACTOR_KEY" == true ]; then
@@ -59,57 +62,37 @@ if [ -n "$INPUT_SSH_CLIENT_PUBLIC_KEY" ]; then
   echo "$INPUT_SSH_CLIENT_PUBLIC_KEY" >>"$ssh_dir/authorized_keys"
 fi
 
-if ! grep -q . "$ssh_dir/authorized_keys" || [ "$INPUT_SET_RANDOM_PASSWORD" == true ]; then
-  echo "Setting random password for user: $USER"
-  random_password=$(openssl rand -base64 32)
-  if [ $GITHUB_ACTIONS == true ]; then
-    echo "$USER:$random_password" | sudo chpasswd
-  fi
+if ! grep -q . "$ssh_dir/authorized_keys"; then
+  echo "No SSH authorized_keys configured. Exiting..."
+  exit 1
 fi
 
-# Download and install ngrok
-if ! command -v "ngrok" >/dev/null 2>&1; then
-  echo "Installing ngrok..."
-  wget -q https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz
-  tar -xzf ngrok-v3-stable-linux-amd64.tgz
-  chmod +x ngrok
-  mv ngrok /usr/local/bin/ngrok
-  rm ngrok-v3-stable-linux-amd64.tgz
-fi
-
+chmod 600 "$ssh_dir/authorized_keys"
 echo "Starting SSH server..."
-/usr/sbin/sshd -f "$ssh_dir/config"
+/usr/sbin/sshd -E "$ssh_dir/sshd.log" -f "$ssh_dir/config"
 
 echo "Starting ngrok..."
 ngrok start --all --config "$ngrok_config" --log "$ngrok_dir/ngrok.log" >/dev/null &
 
-# Get ngrok tunnels and print them
-tunnels="$(curl -s --retry-connrefused --retry 10 http://localhost:4040/api/tunnels)"
-echo "NGROK_TUNNELS=$(echo $tunnels | jq -c '.tunnels | map(del(.config, .metrics))')" >>"$GITHUB_OUTPUT"
+echo "Getting ngrok tunnels..."
+NGROK_TUNNELS="$(curl -s --retry-all-errors --retry 10 http://localhost:4040/api/tunnels)"
 
 print_tunnels() {
-  echo $tunnels | jq -c '.tunnels[]' | while read tunnel; do
-    local tunnel_name=$(echo $tunnel | jq -r ".name")
-    local tunnel_url=$(echo $tunnel | jq -r ".public_url")
+  echo $NGROK_TUNNELS | jq -c '.tunnels[]' | while read tunnel; do
+    tunnel_name=$(echo $tunnel | jq -r ".name")
+    tunnel_url=$(echo $tunnel | jq -r ".public_url")
     if [ "$tunnel_name" = "ssh" ]; then
-      hostname=$(echo $tunnel_url | cut -d'/' -f3 | cut -d':' -f1)
-      port=$(echo $tunnel_url | cut -d':' -f3)
-
-      echo "SSH_HOSTNAME=$hostname" >>"$GITHUB_OUTPUT"
-      echo "SSH_PORT=$port" >>"$GITHUB_OUTPUT"
+      SSH_HOSTNAME=$(echo $tunnel_url | cut -d'/' -f3 | cut -d':' -f1)
+      SSH_PORT=$(echo $tunnel_url | cut -d':' -f3)
+      echo "SSH_HOSTNAME=$SSH_HOSTNAME" >>"$GITHUB_OUTPUT"
+      echo "SSH_PORT=$SSH_PORT" >>"$GITHUB_OUTPUT"
       echo "SSH_USER=$USER" >>"$GITHUB_OUTPUT"
 
       echo "*********************************"
       printf "\n"
       echo "SSH command:"
-      echo "ssh $USER@$hostname -p $port"
+      echo "ssh $USER@$SSH_HOSTNAME -p $SSH_PORT"
       printf "\n"
-      if [ -n "$random_password" ]; then
-        echo "SSH_PASSWORD=$random_password" >>"$GITHUB_OUTPUT"
-        echo "Random password:"
-        echo "$random_password"
-        printf "\n"
-      fi
     else
       echo "*********************************"
       printf "\n"
@@ -128,3 +111,6 @@ while true; do
   echo "Waiting for SSH user to login..."
   sleep 5
 done
+
+echo "NGROK_TUNNELS=$(echo $NGROK_TUNNELS | jq -c '.tunnels | map(del(.config, .metrics))')" >>"$GITHUB_OUTPUT"
+echo SSH_HOST_PUBLIC_KEY=$(cat "$ssh_dir/ssh_host_key.pub") >>"$GITHUB_OUTPUT"

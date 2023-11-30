@@ -4,11 +4,17 @@ Installs ngrok and opens an SSH tunnel into your GitHub Actions runner.
 
 Useful for debugging builds, previewing your app on a live server, and managing concurrent workflows.
 
+## Supported platforms
+
+This action currently only supports Linux runners.
+
+If you need support for Windows or macOS, please open an issue or submit a pull request.
+
 ## Inputs/Outputs
 
-The only required input is your [ngrok authtoken](https://dashboard.ngrok.com/get-started/your-authtoken). The action will fetch your public SSH key from the GitHub API by default, and if it's not available, it will set a random password.
+The only required input is your [ngrok authtoken](https://dashboard.ngrok.com/get-started/your-authtoken). The action will fetch your public SSH key from the GitHub API by default, and you can also provide a public key as an input.
 
-You can also specify a custom ngrok config file, which will be merged with the [default config file](.ngrok/ngrok.yml). This allows you to run multiple tunnels at once, e.g., for your app's public HTTP port, in addition to SSH.
+Notably, you can specify a custom ngrok config file, which will be [merged](https://ngrok.com/docs/agent/config/#config-file-merging) with the [default config file](.ngrok/ngrok.yml). This allows you to run multiple tunnels at once, e.g., for your app's public HTTP port, in addition to SSH.
 
 See [action.yml](action.yml) for more details.
 
@@ -26,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: tmshkr/ngrok-ssh@v1.2.1
+      - uses: tmshkr/ngrok-ssh@latest
         with:
           NGROK_AUTHTOKEN: ${{ secrets.NGROK_AUTHTOKEN }}
           NGROK_CONFIG_FILE: "ngrok.yml"

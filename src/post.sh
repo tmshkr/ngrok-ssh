@@ -1,11 +1,15 @@
 #!/bin/bash -e
-if [ $GITHUB_ACTIONS != true ]; then
-  HOME="$PWD/dev"
-  USER="dev"
+if [ $GITHUB_ACTIONS == true ]; then
+  export USER=$(whoami)
+  export HOME=$(eval echo ~$USER)
+else
+  export USER="dev"
+  export HOME="$PWD/dev"
+  rm -rf "$PWD/dev"
 fi
 
-ssh_dir="$HOME/.ssh"
-ngrok_dir="$HOME/.ngrok"
+export ssh_dir="$HOME/.ssh"
+export ngrok_dir="$HOME/.ngrok"
 
 # Wait until there are no users logged in
 while ss -tnp | grep sshd | grep $INPUT_SSH_PORT; do
@@ -15,7 +19,7 @@ done
 
 echo "All users logged out. Cleaning up..."
 echo "Terminating processes..."
-killall ngrok || true
+pkill ngrok || true
 kill $(cat $ssh_dir/sshd.pid) || true
 echo "Deleting $ssh_dir"
 rm -rf $ssh_dir || true
