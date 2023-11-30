@@ -66,8 +66,6 @@ echo "Configuring sshd..."
 envsubst <"$ACTION_PATH/.ssh/config" >"$ssh_dir/config"
 envsubst <"$ACTION_PATH/.ssh/rc" >"$ssh_dir/rc" '$ssh_dir'
 echo "cd $GITHUB_WORKSPACE" >>"$HOME/.bash_profile"
-chmod -R 700 "$ssh_dir"
-chmod 700 "$HOME/.bash_profile"
 
 if [ -n "$INPUT_BASH_PROFILE" ]; then
   echo "Adding custom bash_profile..."
@@ -106,6 +104,9 @@ if ! grep -q . "$ssh_dir/authorized_keys" || [ "$INPUT_SET_RANDOM_PASSWORD" == t
     echo "$USER:$random_password" | su -c "chpasswd"
   fi
 fi
+
+chmod -R 700 "$ssh_dir"
+chmod 700 "$HOME/.bash_profile"
 
 echo "Starting SSH server..."
 /usr/sbin/sshd -f "$ssh_dir/config"
