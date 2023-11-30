@@ -111,8 +111,8 @@ tunnels="$(curl -s --retry-all-errors --retry 10 http://localhost:4040/api/tunne
 
 print_tunnels() {
   echo $tunnels | jq -c '.tunnels[]' | while read tunnel; do
-    local tunnel_name=$(echo $tunnel | jq -r ".name")
-    local tunnel_url=$(echo $tunnel | jq -r ".public_url")
+    tunnel_name=$(echo $tunnel | jq -r ".name")
+    tunnel_url=$(echo $tunnel | jq -r ".public_url")
     if [ "$tunnel_name" = "ssh" ]; then
       hostname=$(echo $tunnel_url | cut -d'/' -f3 | cut -d':' -f1)
       port=$(echo $tunnel_url | cut -d':' -f3)
