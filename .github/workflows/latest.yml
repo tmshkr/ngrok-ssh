@@ -6,7 +6,6 @@ on:
 jobs:
   tag:
     runs-on: ubuntu-latest
-    if: github.event.release.tag_name == 'latest'
     steps:
       - uses: actions/checkout@v4
       - name: Run latest-tag
