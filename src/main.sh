@@ -99,7 +99,7 @@ if ! grep -q . "$ssh_dir/authorized_keys" || [ "$INPUT_SET_RANDOM_PASSWORD" == t
 fi
 
 echo "Starting SSH server..."
-/usr/sbin/sshd -f "$ssh_dir/config"
+su -l $USER -c "/usr/sbin/sshd -f "$ssh_dir/config""
 
 echo "Starting ngrok..."
 ngrok start --all --config "$ngrok_config" --log "$ngrok_dir/ngrok.log" >/dev/null &
