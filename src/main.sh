@@ -41,6 +41,11 @@ if ! command -v "sshd" >/dev/null 2>&1; then
   su -c "apt-get update && apt-get install openssh-server -y && mkdir /run/sshd"
 fi
 
+if ! command -v "ss" >/dev/null 2>&1; then
+  echo "Installing sshd..."
+  su -c "apt-get update && apt-get install iproute2"
+fi
+
 echo "Configuring ngrok..."
 envsubst <"$ACTION_PATH/.ngrok/ngrok.yml" >"$ngrok_dir/ngrok.yml"
 ngrok_config="$ngrok_dir/ngrok.yml"
