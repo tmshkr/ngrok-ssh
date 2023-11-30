@@ -5,6 +5,7 @@ if [ $GITHUB_ACTIONS == true ]; then
 else
   export USER="dev"
   export HOME="$PWD/dev"
+  rm -rf "$PWD/dev"
 fi
 
 export ssh_dir="$HOME/.ssh"
