@@ -95,8 +95,8 @@ if ! grep -q . "$ssh_dir/authorized_keys"; then
   exit 1
 fi
 
+cd "$ssh_dir"
 chmod 600 "$ssh_dir/authorized_keys"
-
 echo "Starting SSH server..."
 /usr/sbin/sshd -E "$ssh_dir/sshd.log" -f "$ssh_dir/config"
 
