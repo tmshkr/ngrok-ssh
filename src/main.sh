@@ -141,4 +141,6 @@ while true; do
   sleep 5
 done
 
-tail -F "$ssh_dir/sshd.log"
+if [ "$INPUT_SSH_DEBUG" == true ]; then
+  tail -F "$ssh_dir/sshd.log"
+fi

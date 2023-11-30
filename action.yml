@@ -10,6 +10,10 @@ inputs:
   NGROK_CONFIG_FILE:
     description: "Path to your custom ngrok config file, which will be merged with the default ngrok-ssh config file. See https://ngrok.com/docs/agent/config/#config-file-merging for more information."
     required: false
+  SSH_DEBUG:
+    description: "Whether to enable SSH debug mode."
+    required: false
+    default: false
   SSH_PORT:
     description: "SSH port to use with ngrok."
     required: false
