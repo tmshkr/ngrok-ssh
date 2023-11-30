@@ -7,8 +7,8 @@ if [ -z "$USER" ]; then
   export USER=$(whoami)
 fi
 
-export ssh_dir="$ACTION_PATH/run/.ssh"
-export ngrok_dir="$ACTION_PATH/run/.ngrok"
+export ssh_dir="/run/.ssh"
+export ngrok_dir="/run/.ngrok"
 
 mkdir -p -m 700 $ssh_dir
 mkdir -p -m 700 $ngrok_dir
