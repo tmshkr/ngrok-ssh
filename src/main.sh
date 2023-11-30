@@ -90,16 +90,13 @@ if [ -n "$INPUT_SSH_CLIENT_PUBLIC_KEY" ]; then
   echo "$INPUT_SSH_CLIENT_PUBLIC_KEY" >>"$ssh_dir/authorized_keys"
 fi
 
-if ! grep -q . "$ssh_dir/authorized_keys" || [ "$INPUT_SET_RANDOM_PASSWORD" == true ]; then
-  echo "Setting random password for user: $USER"
-  random_password=$(openssl rand -base64 32)
-  if [ $GITHUB_ACTIONS == true ]; then
-    echo "$USER:$random_password" | su -c "chpasswd"
-  fi
+if ! grep -q . "$ssh_dir/authorized_keys"; then
+  echo "No SSH public keys configured. Exiting..."
+  exit 1
 fi
 
 echo "Starting SSH server..."
-su -l $USER -c "/usr/sbin/sshd -f "$ssh_dir/config""
+/usr/sbin/sshd -f "$ssh_dir/config"
 
 echo "Starting ngrok..."
 ngrok start --all --config "$ngrok_config" --log "$ngrok_dir/ngrok.log" >/dev/null &
@@ -125,12 +122,6 @@ print_tunnels() {
       echo "SSH command:"
       echo "ssh $USER@$hostname -p $port"
       printf "\n"
-      if [ -n "$random_password" ]; then
-        echo "SSH_PASSWORD=$random_password" >>"$GITHUB_OUTPUT"
-        echo "Random password:"
-        echo "$random_password"
-        printf "\n"
-      fi
     else
       echo "*********************************"
       printf "\n"

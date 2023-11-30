@@ -6,7 +6,7 @@ Useful for debugging builds, previewing your app on a live server, and managing 
 
 ## Inputs/Outputs
 
-The only required input is your [ngrok authtoken](https://dashboard.ngrok.com/get-started/your-authtoken). The action will fetch your public SSH key from the GitHub API by default, and if it's not available, it will set a random password.
+The only required input is your [ngrok authtoken](https://dashboard.ngrok.com/get-started/your-authtoken). The action will fetch your public SSH key from the GitHub API by default, and you can also provide a public key as an input.
 
 You can also specify a custom ngrok config file, which will be merged with the [default config file](.ngrok/ngrok.yml). This allows you to run multiple tunnels at once, e.g., for your app's public HTTP port, in addition to SSH.
 
