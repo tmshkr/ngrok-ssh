@@ -1,10 +1,10 @@
 #!/bin/bash -e
-if [ $GITHUB_ACTIONS != true ]; then
-  export USER="dev"
-  export HOME="$PWD/dev"
-else
+if [ $GITHUB_ACTIONS == true ]; then
   export USER=$(whoami)
   export HOME=$(eval echo ~$USER)
+else
+  export USER="dev"
+  export HOME="$PWD/dev"
 fi
 
 export ssh_dir="$HOME/.ssh"
@@ -73,7 +73,6 @@ else
   echo "Generating SSH host's public and private keys..."
   ssh-keygen -q -t rsa -f "$ssh_dir/ssh_host_key" -N ''
 fi
-echo SSH_HOST_PUBLIC_KEY=$(cat "$ssh_dir/ssh_host_key.pub") >>"$GITHUB_OUTPUT"
 
 # Setup ssh login credentials
 if [ "$INPUT_USE_GITHUB_ACTOR_KEY" == true ]; then
@@ -91,11 +90,10 @@ if [ -n "$INPUT_SSH_CLIENT_PUBLIC_KEY" ]; then
 fi
 
 if ! grep -q . "$ssh_dir/authorized_keys"; then
-  echo "No SSH public keys configured. Exiting..."
+  echo "No SSH authorized_keys configured. Exiting..."
   exit 1
 fi
 
-cd "$ssh_dir"
 chmod 600 "$ssh_dir/authorized_keys"
 echo "Starting SSH server..."
 /usr/sbin/sshd -E "$ssh_dir/sshd.log" -f "$ssh_dir/config"
@@ -104,8 +102,7 @@ echo "Starting ngrok..."
 ngrok start --all --config "$ngrok_config" --log "$ngrok_dir/ngrok.log" >/dev/null &
 
 echo "Getting ngrok tunnels..."
-tunnels="$(curl -sS --retry-all-errors --retry 10 http://localhost:4040/api/tunnels)"
-echo "NGROK_TUNNELS=$(echo $tunnels | jq -c '.tunnels | map(del(.config, .metrics))')" >>"$GITHUB_OUTPUT"
+tunnels="$(curl -s --retry-all-errors --retry 10 http://localhost:4040/api/tunnels)"
 
 print_tunnels() {
   echo $tunnels | jq -c '.tunnels[]' | while read tunnel; do
@@ -114,10 +111,6 @@ print_tunnels() {
     if [ "$tunnel_name" = "ssh" ]; then
       hostname=$(echo $tunnel_url | cut -d'/' -f3 | cut -d':' -f1)
       port=$(echo $tunnel_url | cut -d':' -f3)
-
-      echo "SSH_HOSTNAME=$hostname" >>"$GITHUB_OUTPUT"
-      echo "SSH_PORT=$port" >>"$GITHUB_OUTPUT"
-      echo "SSH_USER=$USER" >>"$GITHUB_OUTPUT"
 
       echo "*********************************"
       printf "\n"
@@ -143,6 +136,8 @@ while true; do
   sleep 5
 done
 
-if [ "$INPUT_SSH_DEBUG" == true ]; then
-  tail -F "$ssh_dir/sshd.log"
-fi
+echo "NGROK_TUNNELS=$(echo $tunnels | jq -c '.tunnels | map(del(.config, .metrics))')" >>"$GITHUB_OUTPUT"
+echo "SSH_HOST_PUBLIC_KEY=$(cat "$ssh_dir/ssh_host_key.pub")" >>"$GITHUB_OUTPUT"
+echo "SSH_HOSTNAME=$hostname" >>"$GITHUB_OUTPUT"
+echo "SSH_PORT=$port" >>"$GITHUB_OUTPUT"
+echo "SSH_USER=$USER" >>"$GITHUB_OUTPUT"
