@@ -42,8 +42,8 @@ if ! command -v "sshd" >/dev/null 2>&1; then
 fi
 
 if ! command -v "ss" >/dev/null 2>&1; then
-  echo "Installing sshd..."
-  su -c "apt-get update && apt-get install iproute2"
+  echo "Installing iproute2..."
+  su -c "apt-get update && apt-get install iproute2 -y"
 fi
 
 echo "Configuring ngrok..."
