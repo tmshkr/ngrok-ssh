@@ -1,11 +1,7 @@
 #!/bin/bash -e
-if [ $GITHUB_ACTIONS != true ]; then
-  HOME="$PWD/dev"
-  USER="dev"
-fi
 
-ssh_dir="$HOME/.ssh"
-ngrok_dir="$HOME/.ngrok"
+export ssh_dir="$ACTION_PATH/run/.ssh"
+export ngrok_dir="$ACTION_PATH/run/.ngrok"
 
 # Wait until there are no users logged in
 while ss -tnp | grep sshd | grep $INPUT_SSH_PORT; do

@@ -1,9 +1,5 @@
 #!/bin/bash -e
 if [ $GITHUB_ACTIONS != true ]; then
-  PWD=$(pwd)
-  rm -rf dev
-  mkdir -m 700 "$PWD/dev"
-  export HOME="$PWD/dev"
   export USER="dev"
 fi
 
@@ -11,14 +7,11 @@ if [ -z "$USER" ]; then
   export USER=$(whoami)
 fi
 
-echo "USER=$USER"
-echo "HOME=$HOME"
+export ssh_dir="$ACTION_PATH/run/.ssh"
+export ngrok_dir="$ACTION_PATH/run/.ngrok"
 
-export ssh_dir="$HOME/.ssh"
-export ngrok_dir="$HOME/.ngrok"
-
-mkdir -m 700 $ssh_dir
-mkdir -m 700 $ngrok_dir
+mkdir -p -m 700 $ssh_dir
+mkdir -p -m 700 $ngrok_dir
 
 if ! command -v "envsubst" >/dev/null 2>&1; then
   echo "Installing envsubst..."
@@ -104,9 +97,6 @@ if ! grep -q . "$ssh_dir/authorized_keys" || [ "$INPUT_SET_RANDOM_PASSWORD" == t
     echo "$USER:$random_password" | su -c "chpasswd"
   fi
 fi
-
-chmod -R 700 "$ssh_dir"
-chmod 700 "$HOME/.bash_profile"
 
 echo "Starting SSH server..."
 /usr/sbin/sshd -f "$ssh_dir/config"
