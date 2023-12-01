@@ -32,3 +32,8 @@ if ! command -v "ss" >/dev/null 2>&1; then
   echo "Installing iproute2..."
   su -c "apt-get update && apt-get install iproute2 -y"
 fi
+
+if ! command -v "tmux" >/dev/null 2>&1; then
+  echo "Installing tmux..."
+  su -c "apt-get update && apt-get install tmux -y"
+fi
