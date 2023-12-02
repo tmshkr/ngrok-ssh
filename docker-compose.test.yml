@@ -1,0 +1,9 @@
+version: "3"
+
+services:
+  runner:
+    command: npm run dev:main
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    env_file: test.env
