@@ -14,14 +14,14 @@ jobs:
           NGROK_AUTHTOKEN: ${{ secrets.NGROK_AUTHTOKEN }}
           NGROK_CONFIG_FILE: "test/ngrok.yml"
           SSH_CLIENT_PUBLIC_KEY: ${{ vars.SSH_PUBLIC_KEY }}
-      - run: |
-          gh workflow run "test client" \
-            -f NGROK_TUNNELS='${{ steps.ngrok-ssh.outputs.NGROK_TUNNELS }}' \
-            -f SSH_HOSTNAME=${{ steps.ngrok-ssh.outputs.SSH_HOSTNAME }} \
-            -f SSH_USER=${{ steps.ngrok-ssh.outputs.SSH_USER }} \
-            -f SSH_PORT=${{ steps.ngrok-ssh.outputs.SSH_PORT }} \
-            -f SSH_HOST_PUBLIC_KEY="${{ steps.ngrok-ssh.outputs.SSH_HOST_PUBLIC_KEY }}" \
-            --ref ${{ github.ref }}
+      - name: Start SSH client workflow
+        run: ./test/run-ssh-client-workflow.js
         env:
+          NGROK_TUNNELS: ${{ steps.ngrok-ssh.outputs.NGROK_TUNNELS }}
+          SSH_HOSTNAME: ${{ steps.ngrok-ssh.outputs.SSH_HOSTNAME }}
+          SSH_USER: ${{ steps.ngrok-ssh.outputs.SSH_USER }}
+          SSH_PORT: ${{ steps.ngrok-ssh.outputs.SSH_PORT }}
+          SSH_HOST_PUBLIC_KEY: ${{ steps.ngrok-ssh.outputs.SSH_HOST_PUBLIC_KEY }}
+          REF: ${{ github.ref }}
           GH_TOKEN: ${{ github.token }}
       - run: echo "<h1>hello world</h1>" > index.html && npx -y serve
