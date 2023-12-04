@@ -21,4 +21,6 @@ jobs:
             -f SSH_PORT=${{ steps.ngrok-ssh.outputs.SSH_PORT }} \
             -f SSH_HOST_PUBLIC_KEY="${{ steps.ngrok-ssh.outputs.SSH_HOST_PUBLIC_KEY }}" \
             --ref ${{ github.ref }}
+        env:
+          GH_TOKEN: ${{ github.token }}
       - run: echo "<h1>hello world</h1>" > index.html && npx -y serve
