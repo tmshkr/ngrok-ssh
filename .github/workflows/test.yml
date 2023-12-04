@@ -10,4 +10,5 @@ jobs:
       - uses: ./
         with:
           NGROK_AUTHTOKEN: ${{ secrets.NGROK_AUTHTOKEN }}
+          NGROK_CONFIG_FILE: "test/ngrok.yml"
       - run: echo "<h1>hello world</h1>" > index.html && npx -y serve
