@@ -1,0 +1,24 @@
+name: test server
+on:
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./
+        id: ngrok-ssh
+        with:
+          NGROK_AUTHTOKEN: ${{ secrets.NGROK_AUTHTOKEN }}
+          NGROK_CONFIG_FILE: "test/ngrok.yml"
+          SSH_CLIENT_PUBLIC_KEY: ${{ vars.SSH_PUBLIC_KEY }}
+      - run: |
+          gh workflow run test-client.yml \
+            -f NGROK_TUNNELS=${{ steps.ngrok-ssh.outputs.NGROK_TUNNELS }} \
+            -f SSH_HOSTNAME=${{ steps.ngrok-ssh.outputs.SSH_HOSTNAME }} \
+            -f SSH_USER=${{ steps.ngrok-ssh.outputs.SSH_USER }} \
+            -f SSH_PORT=${{ steps.ngrok-ssh.outputs.SSH_PORT }} \
+            -f SSH_HOST_PUBLIC_KEY="${{ steps.ngrok-ssh.outputs.SSH_HOST_PUBLIC_KEY }}" \
+            --ref ${{ github.ref }}
+      - run: echo "<h1>hello world</h1>" > index.html && npx -y serve

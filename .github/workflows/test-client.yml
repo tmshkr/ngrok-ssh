@@ -1,0 +1,32 @@
+name: test client
+on:
+  workflow_dispatch:
+    inputs:
+      NGROK_TUNNELS:
+        type: string
+        required: true
+      SSH_HOST_PUBLIC_KEY:
+        type: string
+        required: true
+      SSH_HOSTNAME:
+        type: string
+        required: true
+      SSH_PORT:
+        type: string
+        required: true
+      SSH_USER:
+        type: string
+        required: true
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./test/run-tests.sh
+        env:
+          NGROK_TUNNELS: ${{ inputs.NGROK_TUNNELS }}
+          SSH_HOST_PUBLIC_KEY: ${{ inputs.SSH_HOST_PUBLIC_KEY }}
+          SSH_HOSTNAME: ${{ inputs.SSH_HOSTNAME }}
+          SSH_PORT: ${{ inputs.SSH_PORT }}
+          SSH_USER: ${{ inputs.SSH_USER }}
