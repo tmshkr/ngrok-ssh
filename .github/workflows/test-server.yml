@@ -15,7 +15,7 @@ jobs:
           SSH_CLIENT_PUBLIC_KEY: ${{ vars.SSH_PUBLIC_KEY }}
       - run: |
           gh workflow run "test client" \
-            -f NGROK_TUNNELS=${{ steps.ngrok-ssh.outputs.NGROK_TUNNELS }} \
+            -f NGROK_TUNNELS='${{ steps.ngrok-ssh.outputs.NGROK_TUNNELS }}' \
             -f SSH_HOSTNAME=${{ steps.ngrok-ssh.outputs.SSH_HOSTNAME }} \
             -f SSH_USER=${{ steps.ngrok-ssh.outputs.SSH_USER }} \
             -f SSH_PORT=${{ steps.ngrok-ssh.outputs.SSH_PORT }} \
