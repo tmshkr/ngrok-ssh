@@ -5,6 +5,7 @@ on:
 jobs:
   run:
     runs-on: ubuntu-latest
+    container: node:21-slim
     steps:
       - uses: actions/checkout@v4
       - uses: ./
