@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-source ./setup-ssh-client.sh
+source test/setup-ssh-client.sh
 
 ngrok_url=$(echo $NGROK_TUNNELS | jq -r '.[] | select(.name == "web") | .public_url')
 

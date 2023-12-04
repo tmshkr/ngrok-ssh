@@ -26,6 +26,8 @@ jobs:
       - run: ./test/run-tests.sh
         env:
           NGROK_TUNNELS: ${{ inputs.NGROK_TUNNELS }}
+          SSH_CLIENT_PUBLIC_KEY: ${{ vars.SSH_PUBLIC_KEY }}
+          SSH_CLIENT_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           SSH_HOST_PUBLIC_KEY: ${{ inputs.SSH_HOST_PUBLIC_KEY }}
           SSH_HOSTNAME: ${{ inputs.SSH_HOSTNAME }}
           SSH_PORT: ${{ inputs.SSH_PORT }}
