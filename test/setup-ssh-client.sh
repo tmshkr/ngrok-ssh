@@ -12,7 +12,7 @@ Host $SSH_HOSTNAME
   UserKnownHostsFile $HOME/.ssh/known_hosts
 "
 
-mkdir -m 600 $HOME/.ssh
+mkdir -m 700 $HOME/.ssh
 echo "$SSH_CLIENT_PUBLIC_KEY" >$HOME/.ssh/id_rsa.pub
 echo "$SSH_CLIENT_PRIVATE_KEY" >$HOME/.ssh/id_rsa
 echo "$ssh_config" >$HOME/.ssh/config
